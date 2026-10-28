@@ -1,0 +1,56 @@
+import * as React from "react";
+import { ProgressInfo } from "@/types/test-engine";
+import { Button } from "@/components/ui/button";
+
+export interface TestProgressProps {
+  progress: ProgressInfo;
+  onCancelRequest: () => void;
+  className?: string;
+}
+
+export function TestProgress({
+  progress,
+  onCancelRequest,
+  className = "",
+}: TestProgressProps) {
+  return (
+    <div className={`w-full space-y-2.5 ${className}`.trim()}>
+      <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-slate-900 text-sm">
+            Question {progress.currentStepDisplay} of {progress.totalItems}
+          </span>
+          <span className="text-slate-400">&bull;</span>
+          <span className="text-slate-500">
+            {progress.answeredCount} answered
+          </span>
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onCancelRequest}
+          className="text-xs text-slate-500 hover:text-red-700 hover:border-red-200 py-1 px-2.5 h-auto"
+          aria-label="Exit or cancel this screening session"
+        >
+          Exit Test
+        </Button>
+      </div>
+
+      {/* Accessible progress bar */}
+      <div
+        role="progressbar"
+        aria-valuenow={progress.percentage}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuetext={`Question ${progress.currentStepDisplay} of ${progress.totalItems}, ${progress.percentage}% answered`}
+        className="w-full h-2 rounded-full bg-slate-200/80 overflow-hidden"
+      >
+        <div
+          className="h-full bg-teal-700 rounded-full transition-all duration-300 motion-reduce:transition-none"
+          style={{ width: `${progress.percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+}
