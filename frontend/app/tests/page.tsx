@@ -142,11 +142,13 @@ export default function TestsPage() {
             <TestCard
               id="near-vision"
               title="Near Vision"
-              category="Near Point Reading"
-              description="Assesses near-vision reading ability and contrast sensitivity using graded typographic passages calibrated for handheld device and desktop reading."
-              targetMeasurement="Near Reading Acuity & Contrast Steps"
-              status="Coming soon"
-              actionLabel="Not available yet"
+              category="Near-Point Reading"
+              description="An educational reading demonstration presenting controlled typographic passages and character sequences at close reading distance."
+              targetMeasurement="Reading Legibility (Demonstration)"
+              status="Demonstration Ready"
+              actionLabel="Start Demonstration"
+              isAvailable={true}
+              href="/tests/near-vision"
               icon={
                 <svg
                   className="w-5 h-5"
