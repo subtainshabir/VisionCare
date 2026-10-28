@@ -81,10 +81,12 @@ export default function TestsPage() {
               id="color-vision"
               title="Color Vision"
               category="Color Discrimination"
-              description="Screens for possible color-vision differences using digital pseudoisochromatic plates to assess red-green and blue-yellow color discernment."
-              targetMeasurement="Red-Green & Blue-Yellow Deficiency"
-              status="Coming soon"
-              actionLabel="Not available yet"
+              description="An educational demonstration assessing color discernment across red-green and blue-yellow combinations using geometric shapes."
+              targetMeasurement="Red-Green & Blue-Yellow Discrimination"
+              status="Demonstration Ready"
+              actionLabel="Start Demonstration"
+              isAvailable={true}
+              href="/tests/color-vision"
               icon={
                 <svg
                   className="w-5 h-5"

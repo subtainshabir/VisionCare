@@ -7,6 +7,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +20,8 @@ export interface TestCardProps {
   status?: string;
   actionLabel?: string;
   icon: React.ReactNode;
+  href?: string;
+  isAvailable?: boolean;
 }
 
 export function TestCard({
@@ -29,6 +32,8 @@ export function TestCard({
   status = "Coming soon",
   actionLabel = "Not available yet",
   icon,
+  href,
+  isAvailable = false,
 }: TestCardProps) {
   return (
     <Card className="flex flex-col justify-between h-full hover:border-slate-300 transition-colors">
@@ -38,7 +43,7 @@ export function TestCard({
             <span className="text-xs font-medium uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-md border border-teal-200/80">
               {category}
             </span>
-            <Badge variant="neutral" className="text-[11px]">
+            <Badge variant={isAvailable ? "primary" : "neutral"} className="text-[11px]">
               {status}
             </Badge>
           </div>
@@ -69,18 +74,26 @@ export function TestCard({
       </div>
 
       <CardFooter className="pt-4 border-t border-slate-100 mt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <span className="text-xs text-slate-400 font-medium">
-          Screening module in development
+        <span className={`text-xs font-medium ${isAvailable ? "text-teal-800" : "text-slate-400"}`}>
+          {isAvailable ? "Demonstration module ready" : "Screening module in development"}
         </span>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled
-          aria-disabled="true"
-          className="cursor-not-allowed opacity-60 w-full sm:w-auto"
-        >
-          {actionLabel}
-        </Button>
+        {isAvailable && href ? (
+          <Link href={href} className="w-full sm:w-auto">
+            <Button variant="primary" size="sm" className="w-full sm:w-auto shadow-xs">
+              {actionLabel}
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            disabled
+            aria-disabled="true"
+            className="cursor-not-allowed opacity-60 w-full sm:w-auto"
+          >
+            {actionLabel}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
