@@ -113,10 +113,12 @@ export default function TestsPage() {
               id="distance-vision"
               title="Distance Vision"
               category="Visual Acuity"
-              description="Assesses distance visual clarity using a calibrated Snellen-style distance vision chart paired with physical viewing-distance calibration prompts."
-              targetMeasurement="Snellen Fractional Acuity (e.g. 20/20)"
-              status="Coming soon"
-              actionLabel="Not available yet"
+              description="An educational Snellen-style demonstration presenting high-contrast letter optotypes to explore browser-based distance screening."
+              targetMeasurement="Optotype Recognition (Demonstration)"
+              status="Demonstration Ready"
+              actionLabel="Start Demonstration"
+              isAvailable={true}
+              href="/tests/distance-vision"
               icon={
                 <svg
                   className="w-5 h-5"
