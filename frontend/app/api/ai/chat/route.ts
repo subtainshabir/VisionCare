@@ -84,84 +84,98 @@ export async function POST(request: NextRequest) {
 
   // 4. Submit to official Groq Chat Completions API
   const systemPrompt = buildSystemPrompt(assistantContext);
-  const selectedModel = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
-  try {
-    const groqPayload = {
-      model: selectedModel,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...sanitized,
-      ],
-      temperature: 0.5,
-      max_tokens: 650,
-      top_p: 0.9,
-    };
+  // Model cascade: try user-configured model first, then known active models on Groq
+  const candidateModels = [
+    process.env.GROQ_MODEL,
+    "openai/gpt-oss-120b",
+    "qwen/qwen3.8-27b",
+    "openai/gpt-oss-20b",
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+  ].filter((m): m is string => Boolean(m && m.trim().length > 0));
 
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${groqApiKey}`,
-      },
-      body: JSON.stringify(groqPayload),
-      signal: AbortSignal.timeout(18000), // 18-second timeout
-    });
+  let lastErrorStatus: number | null = null;
+  let successfulReply: string | null = null;
+  let modelUsed: string | null = null;
 
-    if (!groqResponse.ok) {
-      if (groqResponse.status === 429) {
-        return NextResponse.json(
-          {
-            error:
-              selectedLanguage === "ur"
-                ? "AI اسسٹنٹ اس وقت مصروف ہے۔ براہ کرم چند سیکنڈ بعد دوبارہ کوشش کریں۔"
-                : "The Groq AI service is currently experiencing high load. Please try again in a moment.",
-          },
-          { status: 429 }
-        );
-      }
+  for (const model of candidateModels) {
+    try {
+      const groqPayload = {
+        model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...sanitized,
+        ],
+        temperature: 0.5,
+        max_tokens: 650,
+        top_p: 0.9,
+      };
 
-      // Fallback on provider error rather than throwing an unhandled error to the user
-      const fallbackResponse = generateLocalFallbackResponse(
-        latestUserMessage,
-        assistantContext
-      );
-      return NextResponse.json({
-        role: "assistant",
-        content: fallbackResponse,
-        configured: true,
-        fallback: true,
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${groqApiKey}`,
+        },
+        body: JSON.stringify(groqPayload),
+        signal: AbortSignal.timeout(18000), // 18-second timeout
       });
+
+      if (groqResponse.ok) {
+        const data = await groqResponse.json();
+        const content = data?.choices?.[0]?.message?.content?.trim();
+        if (content) {
+          successfulReply = content;
+          modelUsed = model;
+          break;
+        }
+      } else {
+        lastErrorStatus = groqResponse.status;
+        // If rate-limited on Groq API, return 429
+        if (groqResponse.status === 429) {
+          return NextResponse.json(
+            {
+              error:
+                selectedLanguage === "ur"
+                  ? "AI اسسٹنٹ اس وقت مصروف ہے۔ براہ کرم چند سیکنڈ بعد دوبارہ کوشش کریں۔"
+                  : "The Groq AI service is currently experiencing high load. Please try again in a moment.",
+            },
+            { status: 429 }
+          );
+        }
+        // If 404/400 (model not found), loop will try the next candidate model
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "TimeoutError") {
+        break; // Timeout reached, fall back
+      }
     }
+  }
 
-    const data = await groqResponse.json();
-    const assistantReply =
-      data?.choices?.[0]?.message?.content?.trim() ||
-      (selectedLanguage === "ur"
-        ? "معذرت، میں فی الحال اس پیغام کا جواب نہیں دے سکا۔ براہ کرم دوبارہ کوشش کریں۔"
-        : "I was unable to generate a response. Please try asking again.");
-
+  if (successfulReply && modelUsed) {
     return NextResponse.json({
       role: "assistant",
-      content: assistantReply,
+      content: successfulReply,
       configured: true,
-      model: selectedModel,
-    });
-  } catch (err: unknown) {
-    const isTimeout = err instanceof Error && err.name === "TimeoutError";
-
-    // Fall back to local guidance so the user is never left stranded
-    const fallbackResponse = generateLocalFallbackResponse(
-      latestUserMessage,
-      assistantContext
-    );
-
-    return NextResponse.json({
-      role: "assistant",
-      content: fallbackResponse,
-      configured: true,
-      fallback: true,
-      notice: isTimeout ? "Network timeout occurred. Provided local guidance." : undefined,
+      model: modelUsed,
     });
   }
+
+  // Graceful fallback if all remote models failed or timed out
+  const fallbackResponse = generateLocalFallbackResponse(
+    latestUserMessage,
+    assistantContext
+  );
+
+  return NextResponse.json({
+    role: "assistant",
+    content: fallbackResponse,
+    configured: true,
+    fallback: true,
+    notice:
+      lastErrorStatus === 401
+        ? "Invalid Groq API key provided."
+        : "Live AI temporarily unavailable. Providing local guidance.",
+  });
 }
