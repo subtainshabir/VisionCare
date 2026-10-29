@@ -5,6 +5,7 @@ import { useAIAssistant } from "./ai-assistant-context";
 import { translations } from "@/lib/ai/translations";
 import { testGuides } from "@/lib/ai/test-guide-data";
 import { AIVisionIcon } from "@/components/ui/ai-vision-icon";
+import { MarkdownMessage } from "./markdown-message";
 import {
   EyeIcon,
   RotateCcwIcon,
@@ -370,13 +371,17 @@ export function AIAssistantPopup() {
                   className={`flex flex-col ${isUser ? "items-end" : "items-start"} animate-fade-in`}
                 >
                   <div
-                    className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
+                    className={`${
                       isUser
-                        ? "bg-teal-600 dark:bg-cyan-600 text-white rounded-br-xs dark:rounded-br-xs shadow-xs"
-                        : "bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 rounded-bl-xs dark:rounded-bl-xs border border-slate-200/60 dark:border-slate-700/60"
+                        ? "max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap bg-teal-600 dark:bg-cyan-600 text-white rounded-br-xs dark:rounded-br-xs shadow-xs"
+                        : "max-w-[92%] sm:max-w-[90%] p-3.5 rounded-2xl text-xs bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 rounded-bl-xs dark:rounded-bl-xs border border-slate-200/60 dark:border-slate-700/60 shadow-xs overflow-hidden"
                     }`}
                   >
-                    {msg.content}
+                    {isUser ? (
+                      msg.content
+                    ) : (
+                      <MarkdownMessage content={msg.content} />
+                    )}
                   </div>
                 </div>
               );

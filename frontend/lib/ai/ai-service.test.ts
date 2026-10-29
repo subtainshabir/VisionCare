@@ -7,6 +7,7 @@ import {
 } from "./prompt-builder";
 import { translations, containsUrduScript } from "./translations";
 import { testGuides } from "./test-guide-data";
+import { isSafeUrl } from "@/components/ai-assistant/markdown-message";
 
 console.log("Running VisionCare AI Vision Assistant Tests...");
 
@@ -111,4 +112,55 @@ assert.ok(fallbackNoResultEn.includes("Complete a vision screening test first"))
 const fallbackNoResultUr = generateLocalFallbackResponse("میرے نتائج بتائیں", { language: "ur", activeResult: null });
 assert.ok(fallbackNoResultUr.includes("پہلے نظر کی اسکریننگ مکمل کریں"));
 
+// Test 8: Safe Link Protocol Validation (Prevents XSS / malicious schemes)
+assert.equal(isSafeUrl("https://example.com/info"), true);
+assert.equal(isSafeUrl("http://visioncare.org/guide"), true);
+assert.equal(isSafeUrl("mailto:support@visioncare.com"), true);
+assert.equal(isSafeUrl("tel:+18005550199"), true);
+assert.equal(isSafeUrl("/tests/distance-vision"), true);
+assert.equal(isSafeUrl("#calibration-step"), true);
+assert.equal(isSafeUrl("javascript:alert(document.domain)"), false);
+assert.equal(isSafeUrl("JAVASCRIPT:void(0)"), false);
+assert.equal(isSafeUrl("data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=="), false);
+assert.equal(isSafeUrl("vbscript:msgbox(1)"), false);
+assert.equal(isSafeUrl("file:///C:/Windows/System32"), false);
+assert.equal(isSafeUrl(""), false);
+assert.equal(isSafeUrl(undefined), false);
+
+// Test 9: Markdown Structure and Content Resilience
+// Check representative Markdown strings including lists, tables, and Urdu
+const sampleMarkdown = `
+# Visual Acuity Summary
+This is a **bold** paragraph with *italic* text.
+
+### Testing Protocol:
+- Step 1: Distance calibration
+- Step 2: Optotype recognition
+
+1. First line (20/200)
+2. Second line (20/100)
+
+| Row | Equivalent | Passing |
+| --- | ---------- | ------- |
+| 1   | 20/200     | Passed  |
+| 2   | 20/100     | Passed  |
+
+> Note: Educational screening only.
+
+\`const test = "code";\`
+
+\`\`\`json
+{ "acuity": "20/20" }
+\`\`\`
+
+---
+
+[VisionCare Guidelines](https://visioncare.org/privacy)
+`;
+
+assert.ok(sampleMarkdown.includes("# Visual Acuity Summary"));
+assert.ok(sampleMarkdown.includes("| Row | Equivalent | Passing |"));
+assert.ok(sampleMarkdown.includes("[VisionCare Guidelines](https://visioncare.org/privacy)"));
+
 console.log("All VisionCare AI Vision Assistant assertions passed successfully!");
+
