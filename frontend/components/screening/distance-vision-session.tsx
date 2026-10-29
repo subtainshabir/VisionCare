@@ -23,17 +23,21 @@ import { DistanceVisionCompletion } from "./distance-vision-completion";
 const CALIBRATION_STORAGE_KEY = "visioncare_distance_calibration";
 
 export function DistanceVisionSession() {
-  const [calibration, setCalibration] = React.useState<DisplayCalibration>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(CALIBRATION_STORAGE_KEY);
-        if (stored) return JSON.parse(stored);
-      } catch {
-        // Fallback
+  const [calibration, setCalibration] = React.useState<DisplayCalibration>(DEFAULT_CALIBRATION);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CALIBRATION_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        requestAnimationFrame(() => {
+          setCalibration(parsed);
+        });
       }
+    } catch {
+      // LocalStorage blocked or invalid
     }
-    return DEFAULT_CALIBRATION;
-  });
+  }, []);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -160,7 +164,7 @@ export function DistanceVisionSession() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs">
               <div className="space-y-1">
                 <span className="font-bold text-slate-900 dark:text-white block">1. Distance</span>
-                <span className="text-slate-600 dark:text-slate-400 block">
+                <span suppressHydrationWarning className="text-slate-600 dark:text-slate-400 block">
                   Sit {calibration.viewingDistanceMeters}m (~5 ft) away at eye level.
                 </span>
               </div>
@@ -186,7 +190,7 @@ export function DistanceVisionSession() {
           </CardContent>
 
           <CardFooter className="pt-5 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span suppressHydrationWarning className="text-xs text-slate-500 dark:text-slate-400">
               Calibrated for: <strong>{calibration.viewingDistanceMeters}m</strong> viewing distance
             </span>
 

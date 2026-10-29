@@ -20,27 +20,14 @@ export function NearVisionCalibration({
   onCalibrationChange,
   onConfirm,
 }: NearVisionCalibrationProps) {
-  const [cardWidthPx, setCardWidthPx] = React.useState<number>(() => {
-    return Math.round(currentCalibration.pixelsPerMm * STANDARD_CARD_WIDTH_MM) || 324;
-  });
-
-  const [selectedDistance, setSelectedDistance] = React.useState<number>(
-    currentCalibration.viewingDistanceCm
-  );
-
-  const [wearsReadingGlasses, setWearsReadingGlasses] = React.useState<boolean>(
-    currentCalibration.wearsReadingGlasses
-  );
-
-  const [isCalibrated, setIsCalibrated] = React.useState<boolean>(
-    currentCalibration.isCardCalibrated
-  );
+  const cardWidthPx = Math.round(currentCalibration.pixelsPerMm * STANDARD_CARD_WIDTH_MM) || 324;
+  const selectedDistance = currentCalibration.viewingDistanceCm;
+  const wearsReadingGlasses = currentCalibration.wearsReadingGlasses;
+  const isCalibrated = currentCalibration.isCardCalibrated;
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newWidth = Number(e.target.value);
-    setCardWidthPx(newWidth);
     const newPpm = newWidth / STANDARD_CARD_WIDTH_MM;
-    setIsCalibrated(true);
     onCalibrationChange({
       pixelsPerMm: newPpm,
       viewingDistanceCm: selectedDistance,
@@ -51,9 +38,7 @@ export function NearVisionCalibration({
 
   const adjustWidth = (delta: number) => {
     const newWidth = Math.max(220, Math.min(460, cardWidthPx + delta));
-    setCardWidthPx(newWidth);
     const newPpm = newWidth / STANDARD_CARD_WIDTH_MM;
-    setIsCalibrated(true);
     onCalibrationChange({
       pixelsPerMm: newPpm,
       viewingDistanceCm: selectedDistance,
@@ -63,7 +48,6 @@ export function NearVisionCalibration({
   };
 
   const handleDistanceChange = (distCm: number) => {
-    setSelectedDistance(distCm);
     onCalibrationChange({
       ...currentCalibration,
       viewingDistanceCm: distCm,
@@ -71,7 +55,6 @@ export function NearVisionCalibration({
   };
 
   const handleGlassesToggle = (wears: boolean) => {
-    setWearsReadingGlasses(wears);
     onCalibrationChange({
       ...currentCalibration,
       wearsReadingGlasses: wears,
@@ -79,8 +62,6 @@ export function NearVisionCalibration({
   };
 
   const handleUseStandard = () => {
-    setCardWidthPx(324);
-    setIsCalibrated(false);
     onCalibrationChange({
       ...DEFAULT_NEAR_CALIBRATION,
       viewingDistanceCm: selectedDistance,
@@ -310,3 +291,4 @@ export function NearVisionCalibration({
     </div>
   );
 }
+

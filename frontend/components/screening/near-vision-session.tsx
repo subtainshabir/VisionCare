@@ -23,17 +23,21 @@ import { NearVisionCompletion } from "./near-vision-completion";
 const NEAR_CALIBRATION_STORAGE_KEY = "visioncare_near_calibration";
 
 export function NearVisionSession() {
-  const [calibration, setCalibration] = React.useState<NearDisplayCalibration>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(NEAR_CALIBRATION_STORAGE_KEY);
-        if (stored) return JSON.parse(stored);
-      } catch {
-        // Fallback
+  const [calibration, setCalibration] = React.useState<NearDisplayCalibration>(DEFAULT_NEAR_CALIBRATION);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem(NEAR_CALIBRATION_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        requestAnimationFrame(() => {
+          setCalibration(parsed);
+        });
       }
+    } catch {
+      // LocalStorage blocked or invalid
     }
-    return DEFAULT_NEAR_CALIBRATION;
-  });
+  }, []);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -198,7 +202,7 @@ export function NearVisionSession() {
           </CardContent>
 
           <CardFooter className="pt-5 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span suppressHydrationWarning className="text-xs text-slate-500 dark:text-slate-400">
               Calibrated for: <strong>{calibration.viewingDistanceCm} cm (14 in)</strong> viewing distance
             </span>
 

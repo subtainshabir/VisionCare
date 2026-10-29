@@ -20,23 +20,13 @@ export function DistanceVisionCalibration({
   onCalibrationChange,
   onConfirm,
 }: DistanceVisionCalibrationProps) {
-  const [cardWidthPx, setCardWidthPx] = React.useState<number>(() => {
-    return Math.round(currentCalibration.pixelsPerMm * STANDARD_CARD_WIDTH_MM) || 324;
-  });
-
-  const [selectedDistance, setSelectedDistance] = React.useState<number>(
-    currentCalibration.viewingDistanceMeters
-  );
-
-  const [isCalibrated, setIsCalibrated] = React.useState<boolean>(
-    currentCalibration.isCardCalibrated
-  );
+  const cardWidthPx = Math.round(currentCalibration.pixelsPerMm * STANDARD_CARD_WIDTH_MM) || 324;
+  const selectedDistance = currentCalibration.viewingDistanceMeters;
+  const isCalibrated = currentCalibration.isCardCalibrated;
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newWidth = Number(e.target.value);
-    setCardWidthPx(newWidth);
     const newPpm = newWidth / STANDARD_CARD_WIDTH_MM;
-    setIsCalibrated(true);
     onCalibrationChange({
       pixelsPerMm: newPpm,
       viewingDistanceMeters: selectedDistance,
@@ -46,9 +36,7 @@ export function DistanceVisionCalibration({
 
   const adjustWidth = (delta: number) => {
     const newWidth = Math.max(220, Math.min(460, cardWidthPx + delta));
-    setCardWidthPx(newWidth);
     const newPpm = newWidth / STANDARD_CARD_WIDTH_MM;
-    setIsCalibrated(true);
     onCalibrationChange({
       pixelsPerMm: newPpm,
       viewingDistanceMeters: selectedDistance,
@@ -57,7 +45,6 @@ export function DistanceVisionCalibration({
   };
 
   const handleDistanceChange = (dist: number) => {
-    setSelectedDistance(dist);
     onCalibrationChange({
       ...currentCalibration,
       viewingDistanceMeters: dist,
@@ -65,8 +52,6 @@ export function DistanceVisionCalibration({
   };
 
   const handleUseStandard = () => {
-    setCardWidthPx(324);
-    setIsCalibrated(false);
     onCalibrationChange({
       ...DEFAULT_CALIBRATION,
       viewingDistanceMeters: selectedDistance,
