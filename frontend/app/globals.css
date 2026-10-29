@@ -1,14 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --primary: #0f766e;
-  --primary-hover: #115e59;
-  --primary-light: #f0fdfa;
+  /* Midnight Dark Mode Palette */
+  --color-midnight-bg: #090d16;
+  --color-midnight-surface: #0f172a;
+  --color-midnight-card: #111827;
+  --color-midnight-border: rgba(255, 255, 255, 0.08);
+  --color-midnight-border-hover: rgba(34, 211, 238, 0.3);
+
+  /* Neon Accents */
+  --color-neon-cyan: #06b6d4;
+  --color-neon-cyan-bright: #22d3ee;
+  --color-neon-emerald: #10b981;
+  --color-neon-violet: #8b5cf6;
+
+  /* Typography */
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  /* Global Semantics */
+  --background: #090d16;
+  --foreground: #f8fafc;
+  --surface: #0f172a;
+  --primary: #06b6d4;
+  --primary-hover: #22d3ee;
 }
 
 body {
@@ -20,14 +36,38 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Accessible focus styling utility */
+/* Accessible focus styling utility with electric cyan */
 .focus-ring {
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
 .focus-ring:focus-visible {
-  outline: 2px solid #0f766e;
+  outline: 2px solid #22d3ee;
   outline-offset: 2px;
+}
+
+/* Neon Glow Card Hover Effect */
+.card-hover-glow {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+.card-hover-glow:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 211, 238, 0.35);
+  box-shadow: 0 12px 30px -8px rgba(6, 182, 212, 0.2), 0 4px 12px -2px rgba(6, 182, 212, 0.1);
+}
+
+/* Subtle Card Glow Variants */
+.glow-emerald:hover {
+  border-color: rgba(52, 211, 153, 0.4);
+  box-shadow: 0 12px 30px -8px rgba(16, 185, 129, 0.22);
+}
+.glow-cyan:hover {
+  border-color: rgba(34, 211, 238, 0.4);
+  box-shadow: 0 12px 30px -8px rgba(6, 182, 212, 0.22);
+}
+.glow-violet:hover {
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 12px 30px -8px rgba(139, 92, 246, 0.22);
 }
 
 /* Reduced motion preference */
@@ -39,5 +79,6 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+    transform: none !important;
   }
 }

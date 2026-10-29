@@ -28,13 +28,13 @@ export function TestSessionShell({
   children,
 }: TestSessionShellProps) {
   return (
-    <Card className="max-w-2xl mx-auto shadow-sm">
-      <CardHeader className="pb-4 border-b border-slate-100">
+    <Card className="max-w-2xl mx-auto shadow-2xl border-slate-800/80 bg-[#0F172A]/95">
+      <CardHeader className="pb-4 border-b border-slate-800">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-teal-800">
+          <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
             {title}
           </span>
-          <span className="text-xs text-slate-500 font-medium">
+          <span className="text-xs text-slate-400 font-medium">
             Active Session
           </span>
         </div>

@@ -3,77 +3,77 @@ import Link from "next/link";
 import { PageContainer } from "@/components/ui/page-container";
 import { TestCard } from "@/components/screening/test-card";
 import { ScreeningNotice } from "@/components/screening/screening-notice";
+import {
+  ColorVisionIcon,
+  DistanceVisionIcon,
+  NearVisionIcon,
+  InfoIcon,
+} from "@/components/ui/icons";
 
 export const metadata: Metadata = {
-  title: "Vision Screening Tests - VisionCare",
+  title: "Choose Your Vision Test - VisionCare",
   description:
-    "Explore planned vision screening modules including color vision, distance acuity, and near vision testing.",
+    "Explore interactive vision screening demonstrations including color vision, distance acuity, and close reading clarity.",
 };
 
 export default function TestsPage() {
   return (
-    <main className="flex-1 py-10 sm:py-16">
+    <main className="flex-1 py-8 sm:py-12 bg-[#090D16]">
       <PageContainer maxWidth="xl">
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="mb-6 sm:mb-8">
-          <ol className="flex items-center gap-2 text-xs font-medium text-slate-500">
+          <ol className="flex items-center gap-2 text-xs font-medium text-slate-400">
             <li>
               <Link
                 href="/"
-                className="hover:text-teal-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 rounded-xs"
+                className="hover:text-cyan-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-xs"
               >
                 Home
               </Link>
             </li>
-            <li aria-hidden="true" className="text-slate-300">
+            <li aria-hidden="true" className="text-slate-600">
               /
             </li>
-            <li aria-current="page" className="text-teal-900 font-semibold">
+            <li aria-current="page" className="text-cyan-400 font-semibold">
               Screening Tests
             </li>
           </ol>
         </nav>
 
         {/* Dashboard Header */}
-        <div className="mb-10 sm:mb-12">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-medium mb-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-600" aria-hidden="true" />
-            Screening Dashboard
+        <div className="mb-8 sm:mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/70 border border-cyan-800/80 text-cyan-300 text-xs font-semibold mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true" />
+            <span>Interactive Screening Dashboard</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
-            Vision Screening Tests
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            Choose Your Vision Test
           </h1>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 max-w-3xl leading-relaxed">
-            Review the planned visual screening modules below. Each module is being developed based on standardized clinical principles to provide accessible, browser-based visual assessment.
+          <p className="mt-2 text-base text-slate-400 max-w-2xl leading-relaxed">
+            Select an interactive screening demonstration below. Each module evaluates specific visual capabilities using calibrated presentation principles.
           </p>
         </div>
 
-        {/* Informational Readiness Banner */}
-        <div className="mb-10 rounded-xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="w-9 h-9 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center shrink-0 text-teal-800">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        {/* Readiness Info Banner */}
+        <div className="mb-8 rounded-2xl border border-slate-800 bg-[#0F172A]/90 p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-cyan-950/70 border border-cyan-800/80 flex items-center justify-center shrink-0 text-cyan-400">
+              <InfoIcon size={18} />
             </div>
-            <div>
-              <h2 className="text-sm font-semibold text-slate-900">
-                Phase 3 Interface State: Modules in Development
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                Individual testing procedures, calibrated optotypes, and scoring engines will be activated in assigned future phases.
-              </p>
-            </div>
+            <p className="text-xs sm:text-sm text-slate-300">
+              <strong className="text-white font-semibold">Screening Demonstrations: </strong>
+              All tests run privately in your browser without storing personal health data or requiring an account.
+            </p>
           </div>
-          <span className="shrink-0 text-xs font-medium px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-            3 Planned Assessments
+          <span className="shrink-0 text-xs font-semibold px-3 py-1 rounded-full bg-cyan-950/70 text-cyan-300 border border-cyan-800/80">
+            3 Active Demos
           </span>
         </div>
 
         {/* Three Differentiated Screening Cards */}
-        <section aria-labelledby="planned-tests-heading" className="mb-14">
-          <h2 id="planned-tests-heading" className="sr-only">
-            Available Screening Modules
+        <section aria-labelledby="available-tests-heading" className="mb-12">
+          <h2 id="available-tests-heading" className="sr-only">
+            Available Vision Screening Modules
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {/* Card 1: Color Vision */}
@@ -81,31 +81,14 @@ export default function TestsPage() {
               id="color-vision"
               title="Color Vision"
               category="Color Discrimination"
-              description="An educational demonstration assessing color discernment across red-green and blue-yellow combinations using geometric shapes."
-              targetMeasurement="Red-Green & Blue-Yellow Discrimination"
-              status="Demonstration Ready"
-              actionLabel="Start Demonstration"
+              description="Identify geometric shapes hidden inside chromatic dot matrices."
+              status="Ready to Test"
+              actionLabel="Start Test"
+              accent="mint"
+              estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/color-vision"
-              icon={
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <circle cx="9" cy="10" r="1.5" fill="currentColor" />
-                  <circle cx="15" cy="10" r="1.5" fill="currentColor" />
-                  <circle cx="12" cy="15" r="1.5" fill="currentColor" />
-                  <circle cx="15" cy="15" r="1" fill="currentColor" />
-                  <circle cx="9" cy="14" r="1" fill="currentColor" />
-                </svg>
-              }
+              icon={<ColorVisionIcon size={24} className="text-emerald-400" />}
             />
 
             {/* Card 2: Distance Vision */}
@@ -113,57 +96,29 @@ export default function TestsPage() {
               id="distance-vision"
               title="Distance Vision"
               category="Visual Acuity"
-              description="An educational Snellen-style demonstration presenting high-contrast letter optotypes to explore browser-based distance screening."
-              targetMeasurement="Optotype Recognition (Demonstration)"
-              status="Demonstration Ready"
-              actionLabel="Start Demonstration"
+              description="Recognize letter optotypes presented across calibrated scale steps."
+              status="Ready to Test"
+              actionLabel="Start Test"
+              accent="sky"
+              estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/distance-vision"
-              icon={
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M4 6h16" />
-                  <path d="M4 12h10" />
-                  <path d="M4 18h16" />
-                  <path d="M4 6v12" />
-                </svg>
-              }
+              icon={<DistanceVisionIcon size={24} className="text-cyan-400" />}
             />
 
             {/* Card 3: Near Vision */}
             <TestCard
               id="near-vision"
               title="Near Vision"
-              category="Near-Point Reading"
-              description="An educational reading demonstration presenting controlled typographic passages and character sequences at close reading distance."
-              targetMeasurement="Reading Legibility (Demonstration)"
-              status="Demonstration Ready"
-              actionLabel="Start Demonstration"
+              category="Near Reading"
+              description="Read graded typographic passages and verify keywords at close distance."
+              status="Ready to Test"
+              actionLabel="Start Test"
+              accent="lavender"
+              estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/near-vision"
-              icon={
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                </svg>
-              }
+              icon={<NearVisionIcon size={24} className="text-purple-400" />}
             />
           </div>
         </section>

@@ -4,12 +4,12 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { EyeIcon, ArrowRightIcon } from "@/components/ui/icons";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const pathname = usePathname();
 
-  // Close mobile menu on ESC key
   React.useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -22,7 +22,6 @@ export function Header() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [mobileMenuOpen]);
 
-
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Screening Tests", href: "/tests" },
@@ -30,52 +29,40 @@ export function Header() {
   ];
 
   return (
-    <header className="w-full bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40">
+    <header className="w-full bg-[#090D16]/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Branding */}
+        {/* Brand Link */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2"
+          className="flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090D16] group"
           aria-label="VisionCare Home"
         >
-          <div className="w-9 h-9 rounded-xl bg-teal-700 flex items-center justify-center text-white shadow-xs">
-            <svg
-              className="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
+          <div className="w-9 h-9 rounded-xl bg-cyan-500 flex items-center justify-center text-slate-950 shadow-md shadow-cyan-500/20 group-hover:bg-cyan-400 transition-colors">
+            <EyeIcon size={20} className="text-slate-950" />
           </div>
-          <div className="flex items-baseline">
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2">
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-white">
               VisionCare
             </span>
-            <span className="hidden md:inline-block text-xs text-slate-500 pl-2.5 ml-2.5 border-l border-slate-200 font-medium">
-              Screening Platform
+            <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-950/70 border border-cyan-800/80 text-cyan-300">
+              Screening
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation */}
         <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-6">
-          <div className="flex items-center gap-1 text-sm font-medium text-slate-600">
+          <div className="flex items-center gap-1 text-sm font-medium">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-1 ${
+                  className={`px-3 py-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                     isActive
-                      ? "text-teal-900 bg-teal-50 font-semibold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      ? "text-cyan-300 bg-cyan-950/60 font-semibold"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                   }`}
                 >
                   {link.label}
@@ -85,16 +72,17 @@ export function Header() {
           </div>
 
           <Link href="/tests">
-            <Button variant="primary" size="sm">
-              Explore Tests
+            <Button variant="primary" size="sm" className="gap-1.5 shadow-sm font-semibold">
+              <span>Start Screening</span>
+              <ArrowRightIcon size={14} />
             </Button>
           </Link>
         </nav>
 
-        {/* Mobile Menu Toggle Button */}
+        {/* Mobile Navigation Toggle */}
         <div className="flex items-center gap-2 md:hidden">
           <Link href="/tests">
-            <Button variant="primary" size="sm" className="text-xs px-2.5 py-1">
+            <Button variant="primary" size="sm" className="text-xs px-3 py-1.5 font-semibold">
               Tests
             </Button>
           </Link>
@@ -105,7 +93,7 @@ export function Header() {
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-navigation"
             aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-            className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
+            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
           >
             {mobileMenuOpen ? (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -120,11 +108,11 @@ export function Header() {
         </div>
       </div>
 
-      {/* Accessible Mobile Navigation Panel */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div
           id="mobile-navigation"
-          className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 shadow-lg animate-in fade-in duration-150"
+          className="md:hidden border-t border-slate-800 bg-[#0F172A] px-4 pt-3 pb-5 space-y-2 shadow-2xl animate-in fade-in duration-150"
         >
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
@@ -135,8 +123,8 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-base font-medium transition-colors ${
                   isActive
-                    ? "bg-teal-50 text-teal-900 font-semibold"
-                    : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-cyan-950/70 text-cyan-300 font-semibold"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               >
                 {link.label}
@@ -144,10 +132,10 @@ export function Header() {
             );
           })}
 
-          <div className="pt-2 border-t border-slate-100">
+          <div className="pt-2 border-t border-slate-800">
             <Link href="/tests" onClick={() => setMobileMenuOpen(false)} className="block">
-              <Button variant="primary" size="md" className="w-full justify-center">
-                Explore Vision Tests
+              <Button variant="primary" size="md" className="w-full justify-center font-bold">
+                Start Vision Screening
               </Button>
             </Link>
           </div>

@@ -84,10 +84,10 @@ export function DistanceVisionSession() {
                 <span className="text-xs text-slate-400 font-medium">
                   Step {progress.currentStepDisplay} of {progress.totalItems}
                 </span>
-                <h3 className="text-lg font-bold text-slate-900 mt-0.5">
+                <h3 className="text-lg font-bold text-white mt-0.5">
                   What letter optotype is shown on the chart above?
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   Select the letter that matches what you see, or choose &quot;I cannot tell&quot;.
                 </p>
               </div>
@@ -110,19 +110,19 @@ export function DistanceVisionSession() {
                         role="radio"
                         aria-checked={isSelected}
                         onClick={() => recordResponse(option.value)}
-                        className={`p-3 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2 ${
+                        className={`p-3 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                           isCannotTell ? "col-span-2 sm:col-span-4" : ""
                         } ${
                           isSelected
-                            ? "bg-teal-50 border-teal-700 text-teal-950 font-bold shadow-xs ring-1 ring-teal-700"
-                            : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 font-medium"
+                            ? "bg-cyan-950/80 border-cyan-400 text-cyan-200 font-bold shadow-md shadow-cyan-500/20 ring-1 ring-cyan-400"
+                            : "bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/80 font-medium"
                         }`}
                       >
                         <span className={`text-sm ${isCannotTell ? "font-medium" : "font-mono font-bold text-base"}`}>
                           {option.label}
                         </span>
                         {isSelected && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-teal-700" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
                         )}
                       </button>
                     );
