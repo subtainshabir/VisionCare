@@ -63,3 +63,4 @@ assert.equal(mockClasses.contains("dark"), false, "Dark class should not be pres
 assert.equal(mockClasses.contains("light"), true, "Light class should be present in light theme");
 
 console.log("Theme & Accessibility Unit Tests passed successfully!");
+

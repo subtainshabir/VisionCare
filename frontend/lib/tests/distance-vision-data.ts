@@ -1,136 +1,159 @@
-import type { TestMetadata, TestItem, TestItemOption } from "@/types/test-engine";
+import type { TestMetadata, TestItem } from "@/types/test-engine";
 
 export type SnellenOptotype =
+  | "C"
+  | "D"
   | "E"
   | "F"
+  | "L"
+  | "O"
   | "P"
   | "T"
-  | "O"
-  | "Z"
-  | "L"
-  | "D"
-  | "C"
-  | "CANNOT_TELL";
+  | "Z";
 
-export interface DistanceVisionStimulusData {
-  optotype: SnellenOptotype;
-  stepLabel: string;
+export interface SnellenRowData {
+  [key: string]: unknown;
+  rowNumber: number;
+  letters: string;
+  snellenFraction: string;
+  decimalAcuity: number;
+  relativeScale: number;
+  minPassCount: number;
   stepPurpose: string;
-  relativeScale: "xl" | "lg" | "md" | "sm" | "xs";
-  fontClass: string;
-  pixelHeightEstimate: number;
+  defaultPixelHeight: number;
 }
+
+export interface DisplayCalibration {
+  pixelsPerMm: number;
+  viewingDistanceMeters: number;
+  isCardCalibrated: boolean;
+}
+
+export const DEFAULT_CALIBRATION: DisplayCalibration = {
+  pixelsPerMm: 3.7795, // Standard 96 DPI (96 / 25.4)
+  viewingDistanceMeters: 1.5,
+  isCardCalibrated: false,
+};
+
+export const STANDARD_CARD_WIDTH_MM = 85.6; // ISO/IEC 7810 ID-1 standard
+
+export function calculateRowPixelHeight(
+  relativeScale: number,
+  calibration: DisplayCalibration
+): number {
+  // 5 arcminutes subtense formula: heightMm = D * 2 * tan(5' * relativeScale / 2)
+  const distanceMm = calibration.viewingDistanceMeters * 1000;
+  const radians = ((5 * relativeScale) / 60) * (Math.PI / 180);
+  const heightMm = distanceMm * Math.tan(radians);
+  const calculatedPx = heightMm * calibration.pixelsPerMm;
+
+  // Clamp within reasonable physical bounds for screen presentation
+  return Math.max(9, Math.min(130, Math.round(calculatedPx)));
+}
+
+export const snellenChartRows: SnellenRowData[] = [
+  {
+    rowNumber: 1,
+    letters: "E",
+    snellenFraction: "20/200",
+    decimalAcuity: 0.1,
+    relativeScale: 10.0,
+    minPassCount: 1,
+    stepPurpose: "High-magnitude baseline optotype (Row 1)",
+    defaultPixelHeight: 88,
+  },
+  {
+    rowNumber: 2,
+    letters: "FP",
+    snellenFraction: "20/100",
+    decimalAcuity: 0.2,
+    relativeScale: 5.0,
+    minPassCount: 2,
+    stepPurpose: "Large scale two-optotype verification (Row 2)",
+    defaultPixelHeight: 60,
+  },
+  {
+    rowNumber: 3,
+    letters: "TOZ",
+    snellenFraction: "20/70",
+    decimalAcuity: 0.29,
+    relativeScale: 3.5,
+    minPassCount: 2,
+    stepPurpose: "Moderate scale three-optotype verification (Row 3)",
+    defaultPixelHeight: 44,
+  },
+  {
+    rowNumber: 4,
+    letters: "LPED",
+    snellenFraction: "20/50",
+    decimalAcuity: 0.4,
+    relativeScale: 2.5,
+    minPassCount: 3,
+    stepPurpose: "Intermediate scale four-optotype progression (Row 4)",
+    defaultPixelHeight: 32,
+  },
+  {
+    rowNumber: 5,
+    letters: "PECFD",
+    snellenFraction: "20/40",
+    decimalAcuity: 0.5,
+    relativeScale: 2.0,
+    minPassCount: 3,
+    stepPurpose: "Standard driving acuity reference threshold (Row 5)",
+    defaultPixelHeight: 26,
+  },
+  {
+    rowNumber: 6,
+    letters: "EDFCZP",
+    snellenFraction: "20/30",
+    decimalAcuity: 0.67,
+    relativeScale: 1.5,
+    minPassCount: 4,
+    stepPurpose: "High-resolution six-optotype fine detail line (Row 6)",
+    defaultPixelHeight: 20,
+  },
+  {
+    rowNumber: 7,
+    letters: "FELOPZD",
+    snellenFraction: "20/20",
+    decimalAcuity: 1.0,
+    relativeScale: 1.0,
+    minPassCount: 4,
+    stepPurpose: "Standard reference visual acuity line (Row 7)",
+    defaultPixelHeight: 14,
+  },
+];
+
+export const TOTAL_SNELLEN_LETTERS = snellenChartRows.reduce(
+  (sum, row) => sum + row.letters.length,
+  0
+); // 1 + 2 + 3 + 4 + 5 + 6 + 7 = 28 letters
 
 export const distanceVisionMetadata: TestMetadata = {
   id: "distance-vision-screening",
   title: "Snellen-Style Distance Vision Demonstration",
   category: "Visual Acuity (Demonstration)",
   description:
-    "An educational demonstration presenting high-contrast letter optotypes to explore the user experience of browser-based distance screening.",
-  estimatedDurationMinutes: 3,
+    "An interactive Snellen-style distance vision screening chart with screen calibration, row-by-row letter entry, and visual acuity estimation.",
+  estimatedDurationMinutes: 2,
   allowPrevious: true,
   requireAnswerToAdvance: true,
   instructions: [
-    "Sit in a comfortable, upright seated position with your display positioned directly ahead at eye level.",
-    "Keep your browser zoom level set at standard 100% and avoid changing display scaling during the session.",
-    "Ensure comfortable, even room lighting without direct screen reflections or lamp glare.",
-    "Position yourself at a natural viewing distance (~1.5 to 2 meters if using a desktop/laptop, or as far as practical). Note that viewing distance alone does not physically calibrate consumer displays.",
-    "Test with both eyes open. (This demonstration evaluates binocular optotype recognition and does not independently test each eye).",
-    "Carefully observe the letter optotype presented on the chart and select the matching choice, or select 'I cannot tell'.",
-    "Stop the demonstration immediately if you experience eyestrain or physical discomfort.",
+    "Position your screen directly at eye level in an evenly lit room without window glare or screen reflections.",
+    "Maintain standard 100% browser zoom level throughout the screening session.",
+    "Position yourself at the intended viewing distance (standard recommended: 1.5 meters / ~5 feet).",
+    "Calibrate your screen size using a standard plastic card (credit card / ID card) for accurate physical sizing, or proceed with the standard display estimate.",
+    "Keep both eyes open, observe the highlighted row on the Snellen chart, and type the letters you see from left to right.",
+    "If a row is too small or unreadable, click 'Cannot read this row' to advance.",
   ],
 };
 
-const makeOptions = (
-  letters: SnellenOptotype[]
-): Array<TestItemOption<SnellenOptotype>> => {
-  const options: Array<TestItemOption<SnellenOptotype>> = letters.map((l) => ({
-    value: l,
-    label: `Letter ${l}`,
-    shortcut: l,
-  }));
-  options.push({
-    value: "CANNOT_TELL",
-    label: "I cannot tell / Unclear",
-    shortcut: "Unsure",
-  });
-  return options;
-};
-
-export const distanceVisionItems: Array<TestItem<SnellenOptotype>> = [
-  {
-    id: "dv-item-01",
-    title: "Step 1 of 5: Baseline High-Magnitude Optotype",
-    prompt: "Identify the letter optotype displayed on the chart above:",
-    hint: "High-magnitude baseline optotype presentation.",
-    stimulusData: {
-      optotype: "E",
-      stepLabel: "Baseline Optotype (Step 1)",
-      stepPurpose: "Verifies high-contrast optotype recognition at large scale.",
-      relativeScale: "xl",
-      fontClass: "text-7xl sm:text-8xl",
-      pixelHeightEstimate: 88,
-    },
-    options: makeOptions(["E", "F", "P", "T"]),
-  },
-  {
-    id: "dv-item-02",
-    title: "Step 2 of 5: Moderate-Scale Optotype",
-    prompt: "Identify the letter optotype displayed on the chart above:",
-    hint: "Moderate-scale optotype step.",
-    stimulusData: {
-      optotype: "F",
-      stepLabel: "Moderate Scale (Step 2)",
-      stepPurpose: "Presents reduced optotype geometry.",
-      relativeScale: "lg",
-      fontClass: "text-5xl sm:text-6xl",
-      pixelHeightEstimate: 60,
-    },
-    options: makeOptions(["F", "P", "E", "T"]),
-  },
-  {
-    id: "dv-item-03",
-    title: "Step 3 of 5: Intermediate-Scale Optotype",
-    prompt: "Identify the letter optotype displayed on the chart above:",
-    hint: "Intermediate optotype step.",
-    stimulusData: {
-      optotype: "P",
-      stepLabel: "Intermediate Scale (Step 3)",
-      stepPurpose: "Demonstrates letter clarity at intermediate scale.",
-      relativeScale: "md",
-      fontClass: "text-3xl sm:text-4xl",
-      pixelHeightEstimate: 40,
-    },
-    options: makeOptions(["P", "F", "T", "O"]),
-  },
-  {
-    id: "dv-item-04",
-    title: "Step 4 of 5: Compact-Scale Optotype",
-    prompt: "Identify the letter optotype displayed on the chart above:",
-    hint: "Compact-scale optotype step.",
-    stimulusData: {
-      optotype: "Z",
-      stepLabel: "Compact Scale (Step 4)",
-      stepPurpose: "Tests angular resolution at reduced screen scale.",
-      relativeScale: "sm",
-      fontClass: "text-2xl sm:text-3xl",
-      pixelHeightEstimate: 28,
-    },
-    options: makeOptions(["Z", "O", "T", "L"]),
-  },
-  {
-    id: "dv-item-05",
-    title: "Step 5 of 5: High-Precision Optotype",
-    prompt: "Identify the letter optotype displayed on the chart above:",
-    hint: "Smallest demonstration optotype step.",
-    stimulusData: {
-      optotype: "D",
-      stepLabel: "High-Precision Scale (Step 5)",
-      stepPurpose: "Demonstrates acuity threshold boundary under browser conditions.",
-      relativeScale: "xs",
-      fontClass: "text-lg sm:text-xl",
-      pixelHeightEstimate: 18,
-    },
-    options: makeOptions(["D", "O", "C", "P"]),
-  },
-];
+export const distanceVisionItems: Array<TestItem<string>> = snellenChartRows.map(
+  (row) => ({
+    id: `dv-row-0${row.rowNumber}`,
+    title: `Row ${row.rowNumber} of ${snellenChartRows.length} (${row.snellenFraction})`,
+    prompt: `Identify the ${row.letters.length} letter${row.letters.length > 1 ? "s" : ""} in Row ${row.rowNumber}:`,
+    hint: `Letters displayed at ${row.snellenFraction} equivalent scale.`,
+    stimulusData: row,
+  })
+);
