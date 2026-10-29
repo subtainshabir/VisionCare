@@ -134,12 +134,12 @@ export default function Home() {
             <TestCard
               id="near-vision"
               title="Near Vision"
-              category="Near Reading"
-              description="Read graded typographic passages and verify keywords at close distance."
+              category="Near Reading Acuity"
+              description="Rosenbaum-style near vision chart with calibrated 14-inch viewing distance."
               status="Ready to Test"
               actionLabel="Start Test"
               accent="lavender"
-              estimatedTime="3 mins"
+              estimatedTime="2 mins"
               isAvailable={true}
               href="/tests/near-vision"
               icon={<NearVisionIcon size={24} className="text-purple-600 dark:text-purple-400" />}

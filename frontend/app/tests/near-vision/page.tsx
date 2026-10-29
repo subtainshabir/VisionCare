@@ -6,9 +6,9 @@ import { NearVisionSession } from "@/components/screening/near-vision-session";
 import { ScreeningNotice } from "@/components/screening/screening-notice";
 
 export const metadata: Metadata = {
-  title: "Near Vision Reading Demonstration - VisionCare",
+  title: "Rosenbaum Near Vision Reading Chart - VisionCare",
   description:
-    "An educational reading demonstration presenting controlled typographic passages at close reading distance to explore digital reading experiences.",
+    "An interactive Rosenbaum-style near vision reading chart with calibrated 14-inch (35 cm) viewing distance, progressive line sizing, and Jaeger / distance-equivalent screening.",
 };
 
 export default function NearVisionPage() {
@@ -41,7 +41,7 @@ export default function NearVisionPage() {
               /
             </li>
             <li aria-current="page" className="text-teal-700 dark:text-cyan-400 font-semibold">
-              Near Vision Demonstration
+              Rosenbaum Near Vision Chart
             </li>
           </ol>
         </nav>
@@ -52,15 +52,15 @@ export default function NearVisionPage() {
             <span className="w-2 h-2 rounded-full bg-teal-500 dark:bg-cyan-400 animate-pulse" aria-hidden="true" />
             <div>
               <strong className="text-slate-900 dark:text-white font-bold block sm:inline">
-                Near Vision Reading Demonstration:{" "}
+                Rosenbaum Near Vision Reading Screener:{" "}
               </strong>
               <span className="text-slate-600 dark:text-slate-400">
-                Presents graded reading passages to explore browser-based close reading legibility. Does not measure clinical near acuity (Jaeger/logMAR) or diagnose presbyopia.
+                Presents standardized Rosenbaum lines at calibrated 14-inch (35 cm) viewing distance. Educational screening demonstration only; does not diagnose presbyopia, hyperopia, or astigmatism.
               </span>
             </div>
           </div>
           <Badge variant="primary" className="shrink-0 text-[11px]">
-            Educational Demo
+            Educational Screener
           </Badge>
         </div>
 

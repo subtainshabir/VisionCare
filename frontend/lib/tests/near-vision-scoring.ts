@@ -1,26 +1,55 @@
 import { TestResult, UserResponse } from "@/types/test-engine";
-import { NearVisionStimulusData, nearVisionItems } from "./near-vision-data";
+import {
+  RosenbaumLineData,
+  rosenbaumChartLines,
+  TOTAL_ROSENBAUM_CHARACTERS,
+} from "./near-vision-data";
+
+export interface NearVisionLineEvaluation {
+  lineNumber: number;
+  distanceEquivalent: string;
+  jaegerEquivalent: string;
+  expectedDigits: string;
+  userResponse: string | undefined;
+  sanitizedResponse: string;
+  correctDigitCount: number;
+  totalDigitsInLine: number;
+  isLinePassed: boolean;
+  minPassThreshold: number;
+  cannotReadDeclared: boolean;
+}
 
 export interface NearVisionItemEvaluation {
   itemId: string;
   stepLabel: string;
-  passage: string;
-  targetWord: string;
+  passage?: string;
+  targetWord?: string;
+  expectedDigits?: string;
   userResponse: string | undefined;
-  normalizedResponse: string;
+  normalizedResponse?: string;
+  sanitizedResponse?: string;
   isMatch: boolean;
   cannotReadDeclared: boolean;
   relativeScale: string;
+  correctCount?: number;
+  totalDigits?: number;
 }
 
 export interface NearVisionSummary {
   testId: string;
   status: "completed" | "cancelled";
-  totalItems: number;
-  answeredCount: number;
-  matchedCount: number;
-  cannotReadCount: number;
-  matchPercentage: number;
+  totalItems: number; // 8 lines
+  totalCharacters: number; // 37 digits
+  answeredCount: number; // lines answered
+  matchedCount: number; // total correct digits across all lines
+  cannotReadCount: number; // lines marked CANNOT_READ
+  matchPercentage: number; // matchedCount / 37 * 100
+  linesPassedCount: number; // lines where >50% correct
+  smallestPassedLineNumber: number | null;
+  smallestPassedFraction: string | null;
+  smallestPassedJaeger: string | null;
+  smallestPassedLineText: string;
+  lineEvaluations: NearVisionLineEvaluation[];
   evaluations: NearVisionItemEvaluation[];
   summaryNote: string;
   calibrationDisclaimer: string;
@@ -28,7 +57,7 @@ export interface NearVisionSummary {
 
 /**
  * Normalizes user reading input by trimming whitespace, converting to lowercase,
- * and stripping trailing punctuation.
+ * and stripping trailing punctuation. Maintained for backward compatibility.
  */
 export function normalizeReadingResponse(value: string | undefined): string {
   if (!value) return "";
@@ -40,72 +69,169 @@ export function normalizeReadingResponse(value: string | undefined): string {
 }
 
 /**
- * Computes a deterministic response summary for the Near Vision Reading Demonstration.
- * Strictly avoids generating medical diagnoses, Jaeger scores (J1, J2...), Snellen fractions,
- * prescriptions, or clinical visual-acuity classifications.
+ * Evaluates user typed digits against the expected Rosenbaum digits for a single line.
+ * Compares digit by digit up to the line length.
+ * Returns the count of correct digits and whether the line passes the >50% threshold.
+ */
+export function evaluateNearLineInput(
+  expectedDigits: string,
+  userResponse: string | undefined,
+  minPassCount: number
+): {
+  sanitized: string;
+  correctCount: number;
+  isPassed: boolean;
+  cannotRead: boolean;
+} {
+  if (!userResponse) {
+    return { sanitized: "", correctCount: 0, isPassed: false, cannotRead: false };
+  }
+
+  const cannotRead =
+    userResponse === "CANNOT_READ" ||
+    userResponse === "UNSURE" ||
+    userResponse === "CANNOT_TELL";
+
+  if (cannotRead) {
+    return { sanitized: "UNREADABLE", correctCount: 0, isPassed: false, cannotRead: true };
+  }
+
+  const sanitized = userResponse.replace(/[^0-9]/g, "");
+  let correctCount = 0;
+
+  for (let i = 0; i < expectedDigits.length; i++) {
+    if (i < sanitized.length && sanitized[i] === expectedDigits[i]) {
+      correctCount++;
+    }
+  }
+
+  const isPassed = correctCount >= minPassCount;
+  return { sanitized, correctCount, isPassed, cannotRead: false };
+}
+
+/**
+ * Computes a standardized response summary for the Rosenbaum-style near vision reading chart.
+ * Uses a documented clinical scoring rule (>50% correct digits per line to pass).
+ * Strictly avoids diagnosing refractive conditions (presbyopia, hyperopia, astigmatism) or
+ * providing clinical prescriptions.
  */
 export function scoreNearVisionDemonstration(
   result: TestResult<string> | null
 ): NearVisionSummary {
+  const defaultDisclaimer =
+    "This browser-based Rosenbaum near-vision demonstration is an educational screening tool and does not measure clinical reading acuity or provide a medical diagnosis. True near-point acuity requires physical print dimension calibration against your exact screen DPI, verified 14-inch (35 cm) viewing distance, and comprehensive evaluation by an optometrist or ophthalmologist.";
+
   if (!result) {
     return {
       testId: "near-vision-screening",
       status: "cancelled",
-      totalItems: nearVisionItems.length,
+      totalItems: rosenbaumChartLines.length,
+      totalCharacters: TOTAL_ROSENBAUM_CHARACTERS,
       answeredCount: 0,
       matchedCount: 0,
       cannotReadCount: 0,
       matchPercentage: 0,
+      linesPassedCount: 0,
+      smallestPassedLineNumber: null,
+      smallestPassedFraction: null,
+      smallestPassedJaeger: null,
+      smallestPassedLineText: "Session exited before completion",
+      lineEvaluations: [],
       evaluations: [],
       summaryNote: "Demonstration session was cancelled before completion.",
-      calibrationDisclaimer:
-        "Standardized near-point acuity assessment requires calibrated physical print dimensions (such as standard Jaeger or MNREAD charts), controlled physical viewing distance, verified display DPI, and professional clinical refraction.",
+      calibrationDisclaimer: defaultDisclaimer,
     };
   }
 
-  const evaluations: NearVisionItemEvaluation[] = nearVisionItems.map((item) => {
-    const stimulus = item.stimulusData as NearVisionStimulusData | undefined;
-    const targetWord = stimulus?.targetWord ?? "";
-    const passage = stimulus?.passage ?? "";
-    const stepLabel = stimulus?.stepLabel ?? item.id;
-    const relativeScale = stimulus?.relativeScale ?? "standard";
+  const lineEvaluations: NearVisionLineEvaluation[] = [];
+  const evaluations: NearVisionItemEvaluation[] = [];
+  let totalCorrectDigits = 0;
+  let linesPassedCount = 0;
+  let cannotReadCount = 0;
+  let smallestPassedLineNumber: number | null = null;
+  let smallestPassedFraction: string | null = null;
+  let smallestPassedJaeger: string | null = null;
 
-    const userResp: UserResponse<string> | undefined = result.responses[item.id];
+  rosenbaumChartLines.forEach((line: RosenbaumLineData) => {
+    const itemId = `nv-line-0${line.lineNumber}`;
+    const userResp: UserResponse<string> | undefined = result.responses[itemId];
     const userValue = userResp?.value;
-    const cannotReadDeclared = userValue === "CANNOT_READ";
-    const normalized = normalizeReadingResponse(userValue);
-    const isMatch = !cannotReadDeclared && normalized.length > 0 && normalized === targetWord.toLowerCase();
 
-    return {
-      itemId: item.id,
-      stepLabel,
-      passage,
-      targetWord,
+    const { sanitized, correctCount, isPassed, cannotRead } = evaluateNearLineInput(
+      line.characters,
+      userValue,
+      line.minPassCount
+    );
+
+    totalCorrectDigits += correctCount;
+    if (cannotRead) {
+      cannotReadCount++;
+    }
+
+    if (isPassed) {
+      linesPassedCount++;
+      smallestPassedLineNumber = line.lineNumber;
+      smallestPassedFraction = line.distanceEquivalent;
+      smallestPassedJaeger = line.jaegerEquivalent;
+    }
+
+    lineEvaluations.push({
+      lineNumber: line.lineNumber,
+      distanceEquivalent: line.distanceEquivalent,
+      jaegerEquivalent: line.jaegerEquivalent,
+      expectedDigits: line.characters,
       userResponse: userValue,
-      normalizedResponse: normalized,
-      isMatch,
-      cannotReadDeclared,
-      relativeScale,
-    };
+      sanitizedResponse: sanitized,
+      correctDigitCount: correctCount,
+      totalDigitsInLine: line.characters.length,
+      isLinePassed: isPassed,
+      minPassThreshold: line.minPassCount,
+      cannotReadDeclared: cannotRead,
+    });
+
+    evaluations.push({
+      itemId,
+      stepLabel: `Line ${line.lineNumber} (${line.distanceEquivalent} \u2022 ${line.jaegerEquivalent})`,
+      expectedDigits: line.characters,
+      userResponse: userValue,
+      sanitizedResponse: sanitized,
+      isMatch: isPassed,
+      cannotReadDeclared: cannotRead,
+      relativeScale: `${line.relativeScale}x`,
+      correctCount,
+      totalDigits: line.characters.length,
+    });
   });
 
-  const matchedCount = evaluations.filter((e) => e.isMatch).length;
-  const cannotReadCount = evaluations.filter((e) => e.cannotReadDeclared).length;
   const answeredCount = Object.keys(result.responses).length;
   const matchPercentage =
-    result.totalItems > 0 ? Math.round((matchedCount / result.totalItems) * 100) : 0;
+    TOTAL_ROSENBAUM_CHARACTERS > 0
+      ? Math.round((totalCorrectDigits / TOTAL_ROSENBAUM_CHARACTERS) * 100)
+      : 0;
+
+  const smallestPassedLineText = smallestPassedFraction && smallestPassedJaeger
+    ? `Line ${smallestPassedLineNumber} (~${smallestPassedFraction} \u2022 ${smallestPassedJaeger} equivalent)`
+    : "No line passed (>50% accuracy threshold)";
+
+  const summaryNote = `Completed ${answeredCount} of ${rosenbaumChartLines.length} Rosenbaum lines. Identified ${totalCorrectDigits} of ${TOTAL_ROSENBAUM_CHARACTERS} digits correctly (${matchPercentage}%). Smallest successfully read line: ${smallestPassedLineText}. Educational near-vision screening demonstration only; does not measure clinical reading acuity or replace professional examination.`;
 
   return {
     testId: result.testId,
     status: result.status,
-    totalItems: result.totalItems,
+    totalItems: rosenbaumChartLines.length,
+    totalCharacters: TOTAL_ROSENBAUM_CHARACTERS,
     answeredCount,
-    matchedCount,
+    matchedCount: totalCorrectDigits,
     cannotReadCount,
     matchPercentage,
+    linesPassedCount,
+    smallestPassedLineNumber,
+    smallestPassedFraction,
+    smallestPassedJaeger,
+    smallestPassedLineText,
+    lineEvaluations,
     evaluations,
-    summaryNote: `Responses matched ${matchedCount} of ${result.totalItems} demonstration reading targets (${cannotReadCount} marked as unreadable). This summary reflects reading legibility under your current uncalibrated browser setup and does not measure clinical reading acuity.`,
-    calibrationDisclaimer:
-      "This browser-based demonstration cannot measure clinical near visual acuity or determine near-vision reading levels. True near-point acuity requires physical print dimension calibration against your exact screen DPI, verified viewing distance, and evaluation by an eye-care professional.",
+    summaryNote,
+    calibrationDisclaimer: defaultDisclaimer,
   };
 }
