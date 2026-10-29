@@ -14,7 +14,7 @@ export function DistanceVisionStimulus({
     <div className="flex flex-col items-center justify-center p-3 sm:p-5">
       {/* High-Contrast Snellen-Style Chart Display Pane */}
       <div
-        className="w-full max-w-sm sm:max-w-md h-56 sm:h-64 rounded-2xl border-2 border-slate-300 bg-white shadow-sm flex flex-col items-center justify-between p-4 relative overflow-hidden"
+        className="w-full max-w-sm sm:max-w-md h-56 sm:h-64 rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-white shadow-sm flex flex-col items-center justify-between p-4 relative overflow-hidden"
         aria-label={`Distance vision demonstration chart, Step ${stepNumber}`}
       >
         {/* Top Chart Header Line */}
@@ -42,10 +42,10 @@ export function DistanceVisionStimulus({
 
       {/* Calibration Limitations Notice */}
       <div className="mt-4 text-center max-w-sm">
-        <span className="text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+        <span className="text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
           {stimulusData.stepPurpose}
         </span>
-        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
           Uncalibrated browser optotype demonstration. Display dimensions vary by screen DPI and physical distance.
         </p>
       </div>

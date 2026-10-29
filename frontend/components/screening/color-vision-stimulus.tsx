@@ -122,7 +122,7 @@ export function ColorVisionStimulus({
     <div className="flex flex-col items-center justify-center p-4">
       {/* Optical Matrix Disc */}
       <div
-        className="w-64 h-64 sm:w-72 sm:h-72 rounded-full border-4 border-slate-200/90 bg-white shadow-md flex items-center justify-center relative overflow-hidden"
+        className="w-64 h-64 sm:w-72 sm:h-72 rounded-full border-4 border-slate-200 dark:border-slate-700 bg-white shadow-md flex items-center justify-center relative overflow-hidden"
         aria-label={`Demonstration pattern for item ${itemNumber}`}
       >
         <svg
@@ -151,10 +151,10 @@ export function ColorVisionStimulus({
 
       {/* Target Chromatic Pair Notice */}
       <div className="mt-4 text-center">
-        <span className="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+        <span className="text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
           Target: {stimulusData.targetPair}
         </span>
-        <p className="text-[11px] text-slate-400 mt-2 max-w-xs mx-auto">
+        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
           Calibrated geometric demonstration pattern. Not a clinical Ishihara plate.
         </p>
       </div>

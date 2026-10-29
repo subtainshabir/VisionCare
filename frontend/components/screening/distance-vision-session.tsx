@@ -81,13 +81,13 @@ export function DistanceVisionSession() {
             {/* Prompt and Letter Choice Selection */}
             <div className="space-y-4 pt-2">
               <div className="text-center">
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                   Step {progress.currentStepDisplay} of {progress.totalItems}
                 </span>
-                <h3 className="text-lg font-bold text-white mt-0.5">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
                   What letter optotype is shown on the chart above?
                 </h3>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                   Select the letter that matches what you see, or choose &quot;I cannot tell&quot;.
                 </p>
               </div>
@@ -110,19 +110,19 @@ export function DistanceVisionSession() {
                         role="radio"
                         aria-checked={isSelected}
                         onClick={() => recordResponse(option.value)}
-                        className={`p-3 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                        className={`p-3 min-h-[48px] rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${
                           isCannotTell ? "col-span-2 sm:col-span-4" : ""
                         } ${
                           isSelected
-                            ? "bg-cyan-950/80 border-cyan-400 text-cyan-200 font-bold shadow-md shadow-cyan-500/20 ring-1 ring-cyan-400"
-                            : "bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/80 font-medium"
+                            ? "bg-teal-50 dark:bg-teal-950/80 border-teal-600 dark:border-teal-400 text-teal-900 dark:text-teal-200 font-bold shadow-sm ring-1 ring-teal-600 dark:ring-teal-400"
+                            : "bg-white dark:bg-slate-900/80 border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-300 hover:border-teal-500 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/80 font-medium"
                         }`}
                       >
                         <span className={`text-sm ${isCannotTell ? "font-medium" : "font-mono font-bold text-base"}`}>
                           {option.label}
                         </span>
                         {isSelected && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-teal-600 dark:bg-teal-400" />
                         )}
                       </button>
                     );

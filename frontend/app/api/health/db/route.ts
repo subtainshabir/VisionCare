@@ -1,7 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { checkDatabaseConnectivity } from "@/lib/db/neon";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Access request headers to ensure dynamic per-request execution
+  void request.headers.get("user-agent");
   const result = await checkDatabaseConnectivity();
 
   if (result.connected) {

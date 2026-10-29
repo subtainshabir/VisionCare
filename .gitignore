@@ -9,20 +9,6 @@ frontend/node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# Python Virtual Environments & Cache
-backend/.venv/
-backend/venv/
-.venv/
-venv/
-env/
-ENV/
-__pycache__/
-backend/app/__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.pytest_cache/
-
 # Next.js & Frontend Build Outputs
 frontend/.next/
 frontend/out/
@@ -42,8 +28,6 @@ frontend/next-env.d.ts
 frontend/.env
 frontend/.env.local
 frontend/.env.*.local
-backend/.env
-backend/.env.local
 *.pem
 !.env.example
 

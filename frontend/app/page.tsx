@@ -20,10 +20,10 @@ export default function Home() {
   return (
     <main className="flex-1">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-10 pb-16 sm:pt-16 sm:pb-20 border-b border-slate-800/80 bg-[#090D16]">
+      <section className="relative overflow-hidden pt-10 pb-16 sm:pt-16 sm:pb-20 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#090D16] transition-colors">
         {/* Subtle Ambient Radial Glow */}
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-b from-cyan-500/10 via-transparent to-transparent pointer-events-none"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-b from-teal-500/10 dark:from-cyan-500/10 via-transparent to-transparent pointer-events-none"
           aria-hidden="true"
         />
 
@@ -31,23 +31,23 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* Hero Left Column */}
             <div className="lg:col-span-7 text-center lg:text-left space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/70 border border-cyan-800/80 text-cyan-300 text-xs sm:text-sm font-semibold shadow-md">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true" />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 dark:bg-cyan-950/70 dark:border-cyan-800/80 dark:text-cyan-300 text-xs sm:text-sm font-semibold shadow-md">
+                <span className="w-2 h-2 rounded-full bg-teal-500 dark:bg-cyan-400 animate-pulse" aria-hidden="true" />
                 <span>Digital Vision Screening</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
                 Take a Closer Look at Your Vision.
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
                 Accessible browser-based screening demonstrations to test your color discernment, distance acuity, and close reading clarity from your screen.
               </p>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
                 <Link href="/tests">
-                  <Button variant="primary" size="lg" className="shadow-lg shadow-cyan-500/25 font-bold gap-2">
+                  <Button variant="primary" size="lg" className="shadow-lg shadow-teal-600/20 dark:shadow-cyan-500/25 font-bold gap-2">
                     <span>Explore Tests</span>
                     <ArrowRightIcon size={18} />
                   </Button>
@@ -61,21 +61,21 @@ export default function Home() {
 
               {/* Quick Benefit Indicators */}
               <div className="pt-4 grid grid-cols-3 gap-2 sm:gap-3 max-w-md mx-auto lg:mx-0">
-                <div className="p-2.5 rounded-xl bg-[#0F172A]/90 border border-slate-800/80 flex items-center gap-2 shadow-md">
-                  <SparklesIcon size={16} className="text-cyan-400 shrink-0" />
-                  <span className="text-[11px] sm:text-xs font-semibold text-slate-200">
+                <div className="p-2.5 rounded-xl bg-white dark:bg-[#0F172A]/90 border border-slate-200 dark:border-slate-800/80 flex items-center gap-2 shadow-sm dark:shadow-md">
+                  <SparklesIcon size={16} className="text-teal-600 dark:text-cyan-400 shrink-0" />
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Simple to Use
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#0F172A]/90 border border-slate-800/80 flex items-center gap-2 shadow-md">
-                  <CheckCircleIcon size={16} className="text-emerald-400 shrink-0" />
-                  <span className="text-[11px] sm:text-xs font-semibold text-slate-200">
+                <div className="p-2.5 rounded-xl bg-white dark:bg-[#0F172A]/90 border border-slate-200 dark:border-slate-800/80 flex items-center gap-2 shadow-sm dark:shadow-md">
+                  <CheckCircleIcon size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200">
                     3 Demos
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#0F172A]/90 border border-slate-800/80 flex items-center gap-2 shadow-md">
-                  <ShieldCheckIcon size={16} className="text-purple-400 shrink-0" />
-                  <span className="text-[11px] sm:text-xs font-semibold text-slate-200">
+                <div className="p-2.5 rounded-xl bg-white dark:bg-[#0F172A]/90 border border-slate-200 dark:border-slate-800/80 flex items-center gap-2 shadow-sm dark:shadow-md">
+                  <ShieldCheckIcon size={16} className="text-purple-600 dark:text-purple-400 shrink-0" />
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Clear Guidance
                   </span>
                 </div>
@@ -91,7 +91,7 @@ export default function Home() {
       </section>
 
       {/* Screening Overview Section */}
-      <section className="py-14 sm:py-20 bg-[#090D16]">
+      <section className="py-14 sm:py-20 bg-slate-50 dark:bg-[#090D16] transition-colors">
         <PageContainer maxWidth="xl">
           <SectionHeading
             badge="Screening Demos"
@@ -112,7 +112,7 @@ export default function Home() {
               estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/color-vision"
-              icon={<ColorVisionIcon size={24} className="text-emerald-400" />}
+              icon={<ColorVisionIcon size={24} className="text-emerald-600 dark:text-emerald-400" />}
             />
 
             {/* Card 2: Distance Vision */}
@@ -127,7 +127,7 @@ export default function Home() {
               estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/distance-vision"
-              icon={<DistanceVisionIcon size={24} className="text-cyan-400" />}
+              icon={<DistanceVisionIcon size={24} className="text-teal-600 dark:text-cyan-400" />}
             />
 
             {/* Card 3: Near Vision */}
@@ -142,7 +142,7 @@ export default function Home() {
               estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/near-vision"
-              icon={<NearVisionIcon size={24} className="text-purple-400" />}
+              icon={<NearVisionIcon size={24} className="text-purple-600 dark:text-purple-400" />}
             />
           </div>
         </PageContainer>
@@ -152,7 +152,7 @@ export default function Home() {
       <HowItWorks />
 
       {/* Responsible-Use Notice Section */}
-      <section className="py-12 sm:py-16 bg-[#090D16] border-t border-slate-800/80">
+      <section className="py-12 sm:py-16 bg-slate-50 dark:bg-[#090D16] border-t border-slate-200 dark:border-slate-800/80 transition-colors">
         <PageContainer maxWidth="lg">
           <ScreeningNotice />
         </PageContainer>

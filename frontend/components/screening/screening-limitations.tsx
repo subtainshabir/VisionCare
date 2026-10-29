@@ -47,24 +47,24 @@ export function ScreeningLimitations({
 
   return (
     <div
-      className={`rounded-2xl border border-cyan-800/50 bg-cyan-950/20 p-5 space-y-3 text-xs leading-relaxed text-slate-300 ${className}`.trim()}
+      className={`rounded-2xl border border-teal-200 dark:border-teal-800/50 bg-teal-50/60 dark:bg-teal-950/20 p-5 space-y-3 text-xs leading-relaxed text-slate-700 dark:text-slate-300 ${className}`.trim()}
     >
-      <div className="flex items-center gap-2 text-cyan-300 font-bold text-sm tracking-tight">
-        <InfoIcon size={18} className="text-cyan-400 shrink-0" />
+      <div className="flex items-center gap-2 text-teal-800 dark:text-teal-300 font-bold text-sm tracking-tight">
+        <InfoIcon size={18} className="text-teal-600 dark:text-teal-400 shrink-0" />
         <span>{limitationDetails.title}</span>
       </div>
 
-      <p className="font-semibold text-slate-200">
+      <p className="font-semibold text-slate-900 dark:text-slate-200">
         {limitationDetails.primaryNotice}
       </p>
 
-      <p className="text-slate-400">
-        <strong className="text-slate-300">Technical Boundaries: </strong>
+      <p className="text-slate-600 dark:text-slate-400">
+        <strong className="text-slate-800 dark:text-slate-300">Technical Boundaries: </strong>
         {limitationDetails.calibrationNotice}
       </p>
 
-      <p className="text-slate-400">
-        <strong className="text-slate-300">Clinical Protocol: </strong>
+      <p className="text-slate-600 dark:text-slate-400">
+        <strong className="text-slate-800 dark:text-slate-300">Clinical Protocol: </strong>
         {limitationDetails.clinicalNotice}
       </p>
     </div>

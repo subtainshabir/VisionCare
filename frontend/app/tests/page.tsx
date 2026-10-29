@@ -18,23 +18,23 @@ export const metadata: Metadata = {
 
 export default function TestsPage() {
   return (
-    <main className="flex-1 py-8 sm:py-12 bg-[#090D16]">
+    <main className="flex-1 py-8 sm:py-12 bg-slate-50 dark:bg-[#090D16] text-[#173B45] dark:text-[#F8FAFC] transition-colors">
       <PageContainer maxWidth="xl">
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="mb-6 sm:mb-8">
-          <ol className="flex items-center gap-2 text-xs font-medium text-slate-400">
+          <ol className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
             <li>
               <Link
                 href="/"
-                className="hover:text-cyan-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-xs"
+                className="hover:text-teal-700 dark:hover:text-cyan-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:focus-visible:ring-cyan-400 rounded-xs"
               >
                 Home
               </Link>
             </li>
-            <li aria-hidden="true" className="text-slate-600">
+            <li aria-hidden="true" className="text-slate-400 dark:text-slate-600">
               /
             </li>
-            <li aria-current="page" className="text-cyan-400 font-semibold">
+            <li aria-current="page" className="text-teal-700 dark:text-cyan-400 font-semibold">
               Screening Tests
             </li>
           </ol>
@@ -42,30 +42,30 @@ export default function TestsPage() {
 
         {/* Dashboard Header */}
         <div className="mb-8 sm:mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/70 border border-cyan-800/80 text-cyan-300 text-xs font-semibold mb-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 dark:bg-cyan-950/70 dark:border-cyan-800/80 dark:text-cyan-300 text-xs font-semibold mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-500 dark:bg-cyan-400 animate-pulse" aria-hidden="true" />
             <span>Interactive Screening Dashboard</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Choose Your Vision Test
           </h1>
-          <p className="mt-2 text-base text-slate-400 max-w-2xl leading-relaxed">
+          <p className="mt-2 text-base text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
             Select an interactive screening demonstration below. Each module evaluates specific visual capabilities using calibrated presentation principles.
           </p>
         </div>
 
         {/* Readiness Info Banner */}
-        <div className="mb-8 rounded-2xl border border-slate-800 bg-[#0F172A]/90 p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="mb-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A]/90 p-4 sm:p-5 shadow-sm dark:shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-cyan-950/70 border border-cyan-800/80 flex items-center justify-center shrink-0 text-cyan-400">
+            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-cyan-950/70 border border-teal-200 dark:border-cyan-800/80 flex items-center justify-center shrink-0 text-teal-700 dark:text-cyan-400">
               <InfoIcon size={18} />
             </div>
-            <p className="text-xs sm:text-sm text-slate-300">
-              <strong className="text-white font-semibold">Screening Demonstrations: </strong>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+              <strong className="text-slate-900 dark:text-white font-semibold">Screening Demonstrations: </strong>
               All tests run privately in your browser without storing personal health data or requiring an account.
             </p>
           </div>
-          <span className="shrink-0 text-xs font-semibold px-3 py-1 rounded-full bg-cyan-950/70 text-cyan-300 border border-cyan-800/80">
+          <span className="shrink-0 text-xs font-semibold px-3 py-1 rounded-full bg-teal-50 dark:bg-cyan-950/70 text-teal-800 dark:text-cyan-300 border border-teal-200 dark:border-cyan-800/80">
             3 Active Demos
           </span>
         </div>
@@ -88,7 +88,7 @@ export default function TestsPage() {
               estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/color-vision"
-              icon={<ColorVisionIcon size={24} className="text-emerald-400" />}
+              icon={<ColorVisionIcon size={24} className="text-emerald-600 dark:text-emerald-400" />}
             />
 
             {/* Card 2: Distance Vision */}
@@ -103,7 +103,7 @@ export default function TestsPage() {
               estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/distance-vision"
-              icon={<DistanceVisionIcon size={24} className="text-cyan-400" />}
+              icon={<DistanceVisionIcon size={24} className="text-teal-600 dark:text-cyan-400" />}
             />
 
             {/* Card 3: Near Vision */}
@@ -118,7 +118,7 @@ export default function TestsPage() {
               estimatedTime="3 mins"
               isAvailable={true}
               href="/tests/near-vision"
-              icon={<NearVisionIcon size={24} className="text-purple-400" />}
+              icon={<NearVisionIcon size={24} className="text-purple-600 dark:text-purple-400" />}
             />
           </div>
         </section>
