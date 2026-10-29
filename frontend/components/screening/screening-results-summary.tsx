@@ -62,6 +62,29 @@ export function ScreeningResultsSummary({
   const [authLoading, setAuthLoading] = React.useState(false);
   const [authError, setAuthError] = React.useState<string | null>(null);
 
+  // Sync active screening result to session storage for the AI Assistant Explainer
+  React.useEffect(() => {
+    if (!isCancelled && typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem(
+          "visioncare_active_screening_result",
+          JSON.stringify({
+            testType: testId,
+            testTitle,
+            summaryNote,
+            totalItems,
+            answeredCount,
+            matchedCount,
+            matchPercentage,
+            unclearCount,
+          })
+        );
+      } catch {
+        // Session storage unavailable
+      }
+    }
+  }, [isCancelled, testId, testTitle, summaryNote, totalItems, answeredCount, matchedCount, matchPercentage, unclearCount]);
+
   const handleSaveResult = async () => {
     if (isSaving || isSaved) return;
 

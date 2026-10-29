@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { ThemeProvider } from "@/lib/theme/theme-context";
+import { AIAssistant } from "@/components/ai-assistant";
 
 export const metadata: Metadata = {
   title: "VisionCare - Digital Vision Screening",
@@ -39,6 +40,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <AIAssistant />
           </AuthProvider>
         </ThemeProvider>
       </body>
