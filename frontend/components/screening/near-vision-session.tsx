@@ -1,18 +1,28 @@
 "use client";
 
 import * as React from "react";
+import type { TestItem } from "@/types/test-engine";
 import { useTestSession } from "@/lib/test-engine/use-test-session";
 import {
   NearDisplayCalibration,
   DEFAULT_NEAR_CALIBRATION,
   nearVisionMetadata,
-  nearVisionItems,
-  rosenbaumChartLines,
+  nearVisionChartBank,
+  createNearTestItems,
+  selectRandomNearChart,
+  RosenbaumChartExample,
 } from "@/lib/tests/near-vision-data";
 import { scoreNearVisionDemonstration } from "@/lib/tests/near-vision-scoring";
 import { TestSessionShell } from "@/components/test-engine/test-session-shell";
 import { TestCancelDialog } from "@/components/test-engine/test-cancel-dialog";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EyeIcon, ArrowRightIcon } from "@/components/ui/icons";
@@ -22,23 +32,23 @@ import { NearVisionCompletion } from "./near-vision-completion";
 
 const NEAR_CALIBRATION_STORAGE_KEY = "visioncare_near_calibration";
 
-export function NearVisionSession() {
-  const [calibration, setCalibration] = React.useState<NearDisplayCalibration>(DEFAULT_NEAR_CALIBRATION);
+interface NearVisionActiveSessionProps {
+  chart: RosenbaumChartExample;
+  items: Array<TestItem<string>>;
+  calibration: NearDisplayCalibration;
+  onCalibrationChange: (cal: NearDisplayCalibration) => void;
+  onRestart: () => void;
+  onStartSession: () => void;
+}
 
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem(NEAR_CALIBRATION_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        requestAnimationFrame(() => {
-          setCalibration(parsed);
-        });
-      }
-    } catch {
-      // LocalStorage blocked or invalid
-    }
-  }, []);
-
+function NearVisionActiveSession({
+  chart,
+  items,
+  calibration,
+  onCalibrationChange,
+  onRestart,
+  onStartSession,
+}: NearVisionActiveSessionProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const {
@@ -57,16 +67,20 @@ export function NearVisionSession() {
     closeCancelModal,
     confirmCancel,
     completeSession,
-    resetSession,
   } = useTestSession<string>({
     metadata: nearVisionMetadata,
-    items: nearVisionItems,
+    items,
     autoStart: false,
   });
 
+  const handleStart = React.useCallback(() => {
+    onStartSession();
+    startSession();
+  }, [onStartSession, startSession]);
+
   // Derived input value from test session response
   const isCannotRead = currentResponse === "CANNOT_READ";
-  const activeInput = isCannotRead ? "" : (currentResponse ?? "");
+  const activeInput = isCannotRead ? "" : currentResponse ?? "";
 
   // Auto-focus input when advancing to a new line
   React.useEffect(() => {
@@ -75,17 +89,9 @@ export function NearVisionSession() {
     }
   }, [currentItem?.id, status]);
 
-  const handleCalibrationChange = (cal: NearDisplayCalibration) => {
-    setCalibration(cal);
-    try {
-      localStorage.setItem(NEAR_CALIBRATION_STORAGE_KEY, JSON.stringify(cal));
-    } catch {
-      // LocalStorage blocked
-    }
-  };
-
   const currentLineNumber = progress.currentStepDisplay || 1;
-  const currentLineData = rosenbaumChartLines[currentLineNumber - 1] || rosenbaumChartLines[0];
+  const currentLineData =
+    chart.lines[currentLineNumber - 1] || chart.lines[0];
   const maxDigits = currentLineData.characters.length;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,8 +146,8 @@ export function NearVisionSession() {
   };
 
   const summary = React.useMemo(() => {
-    return scoreNearVisionDemonstration(result);
-  }, [result]);
+    return scoreNearVisionDemonstration(result, chart);
+  }, [result, chart]);
 
   return (
     <div className="w-full">
@@ -197,7 +203,7 @@ export function NearVisionSession() {
             {/* Calibration Tool */}
             <NearVisionCalibration
               currentCalibration={calibration}
-              onCalibrationChange={handleCalibrationChange}
+              onCalibrationChange={onCalibrationChange}
             />
           </CardContent>
 
@@ -209,7 +215,7 @@ export function NearVisionSession() {
             <Button
               variant="primary"
               size="md"
-              onClick={startSession}
+              onClick={handleStart}
               className="w-full sm:w-auto shadow-md shadow-teal-500/20 font-bold gap-2"
             >
               <span>Begin Rosenbaum Screening</span>
@@ -236,13 +242,15 @@ export function NearVisionSession() {
             <NearVisionStimulus
               activeLineNumber={currentLineNumber}
               calibration={calibration}
+              chartLines={chart.lines}
+              chartName={chart.name}
             />
 
             {/* Line Interaction & Digit Input Area */}
             <div className="space-y-4 pt-3 max-w-xl mx-auto w-full">
               <div className="text-center">
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-mono font-medium">
-                  Line {currentLineNumber} of {rosenbaumChartLines.length} &bull; {currentLineData.distanceEquivalent} ({currentLineData.jaegerEquivalent}) &bull; {maxDigits} {maxDigits === 1 ? "Digit" : "Digits"}
+                  Line {currentLineNumber} of {chart.lines.length} &bull; {currentLineData.distanceEquivalent} ({currentLineData.jaegerEquivalent}) &bull; {maxDigits} {maxDigits === 1 ? "Digit" : "Digits"}
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
                   What numbers are displayed in Line {currentLineNumber}?
@@ -277,7 +285,7 @@ export function NearVisionSession() {
                 })}
               </div>
 
-              {/* Accessible Hidden Input for Physical Keyboard / Autofocus */}
+              {/* Accessible Input Field */}
               <div className="flex flex-col items-center">
                 <label htmlFor="near-digit-input" className="sr-only">
                   Enter numbers for Line {currentLineNumber}
@@ -394,8 +402,76 @@ export function NearVisionSession() {
 
       {/* State 3: Completion or Cancellation View */}
       {(status === "completed" || status === "cancelled") && (
-        <NearVisionCompletion summary={summary} onReset={resetSession} />
+        <NearVisionCompletion summary={summary} onReset={onRestart} />
       )}
     </div>
+  );
+}
+
+// PRNG generator that does not trigger Next.js prerender blocker
+function createPrng(seed: number) {
+  let state = ((seed + 1) * 1664525 + 1013904223) >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+export function NearVisionSession() {
+  const [calibration, setCalibration] = React.useState<NearDisplayCalibration>(DEFAULT_NEAR_CALIBRATION);
+  const [sessionSeed, setSessionSeed] = React.useState(0);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem(NEAR_CALIBRATION_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        requestAnimationFrame(() => {
+          setCalibration(parsed);
+        });
+      }
+    } catch {
+      // LocalStorage blocked or invalid
+    }
+  }, []);
+
+  const handleCalibrationChange = React.useCallback((cal: NearDisplayCalibration) => {
+    setCalibration(cal);
+    try {
+      localStorage.setItem(NEAR_CALIBRATION_STORAGE_KEY, JSON.stringify(cal));
+    } catch {
+      // LocalStorage blocked
+    }
+  }, []);
+
+  // Select a randomized chart example from the 50+ question bank
+  const activeChart = React.useMemo(() => {
+    const prng = createPrng(sessionSeed);
+    return selectRandomNearChart(nearVisionChartBank, prng);
+  }, [sessionSeed]);
+
+  const activeItems = React.useMemo(() => {
+    return createNearTestItems(activeChart.lines, activeChart.id);
+  }, [activeChart]);
+
+  // When user clicks Start or Restart, randomize seed on client
+  const handleStartSession = React.useCallback(() => {
+    setSessionSeed((prev) => (prev === 0 ? Math.floor(Math.random() * 100000) + 1 : prev));
+  }, []);
+
+  const handleRestart = React.useCallback(() => {
+    setSessionSeed((prev) => prev + 1 + Math.floor(Math.random() * 1000));
+  }, []);
+
+  return (
+    <NearVisionActiveSession
+      key={sessionSeed}
+      chart={activeChart}
+      items={activeItems}
+      calibration={calibration}
+      onCalibrationChange={handleCalibrationChange}
+      onRestart={handleRestart}
+      onStartSession={handleStartSession}
+    />
   );
 }

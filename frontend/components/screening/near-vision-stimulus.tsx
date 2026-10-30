@@ -5,12 +5,15 @@ import {
   rosenbaumChartLines,
   NearDisplayCalibration,
   calculateNearCharacterHeight,
+  RosenbaumLineData,
 } from "@/lib/tests/near-vision-data";
 
 export interface NearVisionStimulusProps {
   activeLineNumber: number;
   calibration: NearDisplayCalibration;
   className?: string;
+  chartLines?: readonly RosenbaumLineData[];
+  chartName?: string;
 }
 
 /**
@@ -23,6 +26,8 @@ export function NearVisionStimulus({
   activeLineNumber,
   calibration,
   className = "",
+  chartLines = rosenbaumChartLines,
+  chartName,
 }: NearVisionStimulusProps) {
   return (
     <div className={`w-full flex flex-col items-center select-none ${className}`.trim()}>
@@ -34,8 +39,10 @@ export function NearVisionStimulus({
       >
         {/* Chart Header Bar */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-3 text-[10px] sm:text-xs text-slate-500 font-mono tracking-wider uppercase">
-          <span className="font-semibold text-slate-700">Rosenbaum Near Vision Chart</span>
-          <span>
+          <span className="font-semibold text-slate-700 truncate max-w-[240px] sm:max-w-xs">
+            {chartName || "Rosenbaum Near Vision Chart"}
+          </span>
+          <span className="shrink-0">
             Distance: {calibration.viewingDistanceCm} cm (14 in) |{" "}
             {calibration.isCardCalibrated ? "Calibrated" : "Est. 96 DPI"}
           </span>
@@ -43,7 +50,7 @@ export function NearVisionStimulus({
 
         {/* 8 Standardized Rosenbaum Lines */}
         <div className="space-y-1.5 sm:space-y-2">
-          {rosenbaumChartLines.map((line) => {
+          {chartLines.map((line) => {
             const isActive = line.lineNumber === activeLineNumber;
             const charHeightPx = calculateNearCharacterHeight(
               line.relativeScale,

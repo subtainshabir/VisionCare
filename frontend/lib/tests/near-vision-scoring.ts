@@ -1,6 +1,7 @@
 import { TestResult, UserResponse } from "@/types/test-engine";
 import {
   RosenbaumLineData,
+  RosenbaumChartExample,
   rosenbaumChartLines,
   TOTAL_ROSENBAUM_CHARACTERS,
 } from "./near-vision-data";
@@ -39,11 +40,11 @@ export interface NearVisionSummary {
   testId: string;
   status: "completed" | "cancelled";
   totalItems: number; // 8 lines
-  totalCharacters: number; // 37 digits
+  totalCharacters: number; // total digits (usually 37)
   answeredCount: number; // lines answered
   matchedCount: number; // total correct digits across all lines
   cannotReadCount: number; // lines marked CANNOT_READ
-  matchPercentage: number; // matchedCount / 37 * 100
+  matchPercentage: number; // matchedCount / totalCharacters * 100
   linesPassedCount: number; // lines where >50% correct
   smallestPassedLineNumber: number | null;
   smallestPassedFraction: string | null;
@@ -53,6 +54,8 @@ export interface NearVisionSummary {
   evaluations: NearVisionItemEvaluation[];
   summaryNote: string;
   calibrationDisclaimer: string;
+  chartId?: string;
+  chartName?: string;
 }
 
 /**
@@ -116,17 +119,34 @@ export function evaluateNearLineInput(
  * providing clinical prescriptions.
  */
 export function scoreNearVisionDemonstration(
-  result: TestResult<string> | null
+  result: TestResult<string> | null,
+  chartOrLines: RosenbaumChartExample | readonly RosenbaumLineData[] = rosenbaumChartLines
 ): NearVisionSummary {
   const defaultDisclaimer =
     "This browser-based Rosenbaum near-vision demonstration is an educational screening tool and does not measure clinical reading acuity or provide a medical diagnosis. True near-point acuity requires physical print dimension calibration against your exact screen DPI, verified 14-inch (35 cm) viewing distance, and comprehensive evaluation by an optometrist or ophthalmologist.";
+
+  const activeLines: readonly RosenbaumLineData[] = Array.isArray(chartOrLines)
+    ? chartOrLines
+    : (chartOrLines as RosenbaumChartExample).lines;
+
+  const chartId = Array.isArray(chartOrLines)
+    ? undefined
+    : (chartOrLines as RosenbaumChartExample).id;
+  const chartName = Array.isArray(chartOrLines)
+    ? undefined
+    : (chartOrLines as RosenbaumChartExample).name;
+
+  const totalCharacters = activeLines.reduce(
+    (sum, line) => sum + line.characters.length,
+    0
+  ) || TOTAL_ROSENBAUM_CHARACTERS;
 
   if (!result) {
     return {
       testId: "near-vision-screening",
       status: "cancelled",
-      totalItems: rosenbaumChartLines.length,
-      totalCharacters: TOTAL_ROSENBAUM_CHARACTERS,
+      totalItems: activeLines.length,
+      totalCharacters,
       answeredCount: 0,
       matchedCount: 0,
       cannotReadCount: 0,
@@ -140,6 +160,8 @@ export function scoreNearVisionDemonstration(
       evaluations: [],
       summaryNote: "Demonstration session was cancelled before completion.",
       calibrationDisclaimer: defaultDisclaimer,
+      chartId,
+      chartName,
     };
   }
 
@@ -152,7 +174,7 @@ export function scoreNearVisionDemonstration(
   let smallestPassedFraction: string | null = null;
   let smallestPassedJaeger: string | null = null;
 
-  rosenbaumChartLines.forEach((line: RosenbaumLineData) => {
+  activeLines.forEach((line: RosenbaumLineData) => {
     const itemId = `nv-line-0${line.lineNumber}`;
     const userResp: UserResponse<string> | undefined = result.responses[itemId];
     const userValue = userResp?.value;
@@ -205,21 +227,21 @@ export function scoreNearVisionDemonstration(
 
   const answeredCount = Object.keys(result.responses).length;
   const matchPercentage =
-    TOTAL_ROSENBAUM_CHARACTERS > 0
-      ? Math.round((totalCorrectDigits / TOTAL_ROSENBAUM_CHARACTERS) * 100)
+    totalCharacters > 0
+      ? Math.round((totalCorrectDigits / totalCharacters) * 100)
       : 0;
 
   const smallestPassedLineText = smallestPassedFraction && smallestPassedJaeger
     ? `Line ${smallestPassedLineNumber} (~${smallestPassedFraction} \u2022 ${smallestPassedJaeger} equivalent)`
     : "No line passed (>50% accuracy threshold)";
 
-  const summaryNote = `Completed ${answeredCount} of ${rosenbaumChartLines.length} Rosenbaum lines. Identified ${totalCorrectDigits} of ${TOTAL_ROSENBAUM_CHARACTERS} digits correctly (${matchPercentage}%). Smallest successfully read line: ${smallestPassedLineText}. Educational near-vision screening demonstration only; does not measure clinical reading acuity or replace professional examination.`;
+  const summaryNote = `Completed ${answeredCount} of ${activeLines.length} Rosenbaum lines. Identified ${totalCorrectDigits} of ${totalCharacters} digits correctly (${matchPercentage}%). Smallest successfully read line: ${smallestPassedLineText}. Educational near-vision screening demonstration only; does not measure clinical reading acuity or replace professional examination.`;
 
   return {
     testId: result.testId,
     status: result.status,
-    totalItems: rosenbaumChartLines.length,
-    totalCharacters: TOTAL_ROSENBAUM_CHARACTERS,
+    totalItems: activeLines.length,
+    totalCharacters,
     answeredCount,
     matchedCount: totalCorrectDigits,
     cannotReadCount,
@@ -233,5 +255,7 @@ export function scoreNearVisionDemonstration(
     evaluations,
     summaryNote,
     calibrationDisclaimer: defaultDisclaimer,
+    chartId,
+    chartName,
   };
 }

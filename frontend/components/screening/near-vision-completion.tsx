@@ -68,8 +68,8 @@ export function NearVisionCompletion({
                 <EyeIcon size={14} className="text-teal-600 dark:text-teal-400" />
                 <span>Rosenbaum Line-by-Line Breakdown</span>
               </h3>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                8 Standardized Lines (37 Optotype Digits)
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                {summary.chartName || "8 Standardized Lines (37 Optotype Digits)"}
               </span>
             </div>
 
