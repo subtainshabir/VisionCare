@@ -5,6 +5,7 @@ import {
   snellenChartRows,
   DisplayCalibration,
   calculateRowPixelHeight,
+  SnellenRowData,
 } from "@/lib/tests/distance-vision-data";
 import { SnellenOptotypeGlyph } from "./snellen-optotype";
 
@@ -12,6 +13,8 @@ export interface DistanceVisionStimulusProps {
   activeRowNumber: number;
   calibration: DisplayCalibration;
   className?: string;
+  chartRows?: readonly SnellenRowData[];
+  chartName?: string;
 }
 
 /**
@@ -24,6 +27,8 @@ export function DistanceVisionStimulus({
   activeRowNumber,
   calibration,
   className = "",
+  chartRows = snellenChartRows,
+  chartName,
 }: DistanceVisionStimulusProps) {
   return (
     <div className={`w-full flex flex-col items-center select-none ${className}`.trim()}>
@@ -35,8 +40,8 @@ export function DistanceVisionStimulus({
       >
         {/* Chart Header Bar */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-4 text-[10px] sm:text-xs text-slate-500 font-mono tracking-wider uppercase">
-          <span>VisionCare Snellen Chart</span>
-          <span>
+          <span className="truncate max-w-[240px] sm:max-w-xs">{chartName || "VisionCare Snellen Chart"}</span>
+          <span className="shrink-0">
             Distance: {calibration.viewingDistanceMeters.toFixed(1)}m |{" "}
             {calibration.isCardCalibrated ? "Calibrated" : "Est. 96 DPI"}
           </span>
@@ -44,7 +49,7 @@ export function DistanceVisionStimulus({
 
         {/* 7 Standardized Snellen Chart Rows */}
         <div className="space-y-2 sm:space-y-3">
-          {snellenChartRows.map((row) => {
+          {chartRows.map((row) => {
             const isActive = row.rowNumber === activeRowNumber;
             const letterHeightPx = calculateRowPixelHeight(
               row.relativeScale,

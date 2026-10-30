@@ -1,6 +1,7 @@
 import { TestResult, UserResponse } from "@/types/test-engine";
 import {
   SnellenRowData,
+  SnellenChartExample,
   snellenChartRows,
   TOTAL_SNELLEN_LETTERS,
 } from "./distance-vision-data";
@@ -33,10 +34,10 @@ export interface DistanceVisionSummary {
   testId: string;
   status: "completed" | "cancelled";
   totalItems: number; // 7 rows
-  totalLetters: number; // 28 letters
+  totalLetters: number; // total optotypes (usually 28)
   answeredCount: number; // rows answered
   matchedCount: number; // total correct letters
-  matchPercentage: number; // correct letters / 28 * 100
+  matchPercentage: number; // correct letters / totalLetters * 100
   rowsPassedCount: number; // rows where >50% correct
   smallestPassedRowNumber: number | null;
   smallestPassedFraction: string | null;
@@ -45,6 +46,8 @@ export interface DistanceVisionSummary {
   evaluations: DistanceVisionItemEvaluation[];
   summaryNote: string;
   calibrationDisclaimer: string;
+  chartId?: string;
+  chartName?: string;
 }
 
 /**
@@ -96,17 +99,34 @@ export function evaluateRowInput(
  * medical prescriptions.
  */
 export function scoreDistanceVisionDemonstration(
-  result: TestResult<string> | null
+  result: TestResult<string> | null,
+  chartOrRows: SnellenChartExample | readonly SnellenRowData[] = snellenChartRows
 ): DistanceVisionSummary {
   const defaultDisclaimer =
     "This browser-based Snellen chart demonstration is an educational screening tool and does not measure clinical visual acuity or replace an examination by an optometrist or ophthalmologist. Display resolution, ambient room lighting, viewing angle, and device scaling directly affect optotype legibility.";
+
+  const activeRows: readonly SnellenRowData[] = Array.isArray(chartOrRows)
+    ? chartOrRows
+    : (chartOrRows as SnellenChartExample).rows;
+
+  const chartId = Array.isArray(chartOrRows)
+    ? undefined
+    : (chartOrRows as SnellenChartExample).id;
+  const chartName = Array.isArray(chartOrRows)
+    ? undefined
+    : (chartOrRows as SnellenChartExample).name;
+
+  const totalLetters = activeRows.reduce(
+    (sum, row) => sum + row.letters.length,
+    0
+  ) || TOTAL_SNELLEN_LETTERS;
 
   if (!result) {
     return {
       testId: "distance-vision-screening",
       status: "cancelled",
-      totalItems: snellenChartRows.length,
-      totalLetters: TOTAL_SNELLEN_LETTERS,
+      totalItems: activeRows.length,
+      totalLetters,
       answeredCount: 0,
       matchedCount: 0,
       matchPercentage: 0,
@@ -118,6 +138,8 @@ export function scoreDistanceVisionDemonstration(
       evaluations: [],
       summaryNote: "Demonstration session was cancelled before completion.",
       calibrationDisclaimer: defaultDisclaimer,
+      chartId,
+      chartName,
     };
   }
 
@@ -128,7 +150,7 @@ export function scoreDistanceVisionDemonstration(
   let smallestPassedRowNumber: number | null = null;
   let smallestPassedFraction: string | null = null;
 
-  snellenChartRows.forEach((row: SnellenRowData) => {
+  activeRows.forEach((row: SnellenRowData) => {
     const itemId = `dv-row-0${row.rowNumber}`;
     const userResp: UserResponse<string> | undefined = result.responses[itemId];
     const userValue = userResp?.value;
@@ -175,21 +197,21 @@ export function scoreDistanceVisionDemonstration(
 
   const answeredCount = Object.keys(result.responses).length;
   const matchPercentage =
-    TOTAL_SNELLEN_LETTERS > 0
-      ? Math.round((totalCorrectLetters / TOTAL_SNELLEN_LETTERS) * 100)
+    totalLetters > 0
+      ? Math.round((totalCorrectLetters / totalLetters) * 100)
       : 0;
 
   const smallestPassedRowText = smallestPassedFraction
     ? `Row ${smallestPassedRowNumber} (${smallestPassedFraction} screening line)`
     : "No row passed (>50% accuracy threshold)";
 
-  const summaryNote = `Completed ${answeredCount} of ${snellenChartRows.length} Snellen rows. Identified ${totalCorrectLetters} of ${TOTAL_SNELLEN_LETTERS} letters correctly (${matchPercentage}%). Smallest successfully identified line: ${smallestPassedRowText}. Educational screening demonstration only; does not measure clinical visual acuity or provide a medical diagnosis.`;
+  const summaryNote = `Completed ${answeredCount} of ${activeRows.length} Snellen rows. Identified ${totalCorrectLetters} of ${totalLetters} letters correctly (${matchPercentage}%). Smallest successfully identified line: ${smallestPassedRowText}. Educational screening demonstration only; does not measure clinical visual acuity or provide a medical diagnosis.`;
 
   return {
     testId: result.testId,
     status: result.status,
-    totalItems: snellenChartRows.length,
-    totalLetters: TOTAL_SNELLEN_LETTERS,
+    totalItems: activeRows.length,
+    totalLetters,
     answeredCount,
     matchedCount: totalCorrectLetters,
     matchPercentage,
@@ -201,5 +223,7 @@ export function scoreDistanceVisionDemonstration(
     evaluations,
     summaryNote,
     calibrationDisclaimer: defaultDisclaimer,
+    chartId,
+    chartName,
   };
 }

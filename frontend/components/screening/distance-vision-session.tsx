@@ -1,18 +1,28 @@
 "use client";
 
 import * as React from "react";
+import type { TestItem } from "@/types/test-engine";
 import { useTestSession } from "@/lib/test-engine/use-test-session";
 import {
   DisplayCalibration,
   DEFAULT_CALIBRATION,
   distanceVisionMetadata,
-  distanceVisionItems,
-  snellenChartRows,
+  distanceVisionChartBank,
+  createDistanceTestItems,
+  selectRandomDistanceChart,
+  SnellenChartExample,
 } from "@/lib/tests/distance-vision-data";
 import { scoreDistanceVisionDemonstration } from "@/lib/tests/distance-vision-scoring";
 import { TestSessionShell } from "@/components/test-engine/test-session-shell";
 import { TestCancelDialog } from "@/components/test-engine/test-cancel-dialog";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EyeIcon, ArrowRightIcon } from "@/components/ui/icons";
@@ -22,23 +32,23 @@ import { DistanceVisionCompletion } from "./distance-vision-completion";
 
 const CALIBRATION_STORAGE_KEY = "visioncare_distance_calibration";
 
-export function DistanceVisionSession() {
-  const [calibration, setCalibration] = React.useState<DisplayCalibration>(DEFAULT_CALIBRATION);
+interface DistanceVisionActiveSessionProps {
+  chart: SnellenChartExample;
+  items: Array<TestItem<string>>;
+  calibration: DisplayCalibration;
+  onCalibrationChange: (cal: DisplayCalibration) => void;
+  onRestart: () => void;
+  onStartSession: () => void;
+}
 
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem(CALIBRATION_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        requestAnimationFrame(() => {
-          setCalibration(parsed);
-        });
-      }
-    } catch {
-      // LocalStorage blocked or invalid
-    }
-  }, []);
-
+function DistanceVisionActiveSession({
+  chart,
+  items,
+  calibration,
+  onCalibrationChange,
+  onRestart,
+  onStartSession,
+}: DistanceVisionActiveSessionProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const {
@@ -57,16 +67,20 @@ export function DistanceVisionSession() {
     closeCancelModal,
     confirmCancel,
     completeSession,
-    resetSession,
   } = useTestSession<string>({
     metadata: distanceVisionMetadata,
-    items: distanceVisionItems,
+    items,
     autoStart: false,
   });
 
+  const handleStart = React.useCallback(() => {
+    onStartSession();
+    startSession();
+  }, [onStartSession, startSession]);
+
   // Derived input value from test session response
   const isCannotRead = currentResponse === "CANNOT_READ";
-  const activeInput = isCannotRead ? "" : (currentResponse ?? "");
+  const activeInput = isCannotRead ? "" : currentResponse ?? "";
 
   // Auto-focus input when advancing to a new row
   React.useEffect(() => {
@@ -75,17 +89,9 @@ export function DistanceVisionSession() {
     }
   }, [currentItem?.id, status]);
 
-  const handleCalibrationChange = (cal: DisplayCalibration) => {
-    setCalibration(cal);
-    try {
-      localStorage.setItem(CALIBRATION_STORAGE_KEY, JSON.stringify(cal));
-    } catch {
-      // LocalStorage blocked
-    }
-  };
-
   const currentRowNumber = progress.currentStepDisplay || 1;
-  const currentRowData = snellenChartRows[currentRowNumber - 1] || snellenChartRows[0];
+  const currentRowData =
+    chart.rows[currentRowNumber - 1] || chart.rows[0];
   const maxLetters = currentRowData.letters.length;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,8 +134,8 @@ export function DistanceVisionSession() {
   };
 
   const summary = React.useMemo(() => {
-    return scoreDistanceVisionDemonstration(result);
-  }, [result]);
+    return scoreDistanceVisionDemonstration(result, chart);
+  }, [result, chart]);
 
   return (
     <div className="w-full">
@@ -185,7 +191,7 @@ export function DistanceVisionSession() {
             {/* Calibration Tool */}
             <DistanceVisionCalibration
               currentCalibration={calibration}
-              onCalibrationChange={handleCalibrationChange}
+              onCalibrationChange={onCalibrationChange}
             />
           </CardContent>
 
@@ -197,7 +203,7 @@ export function DistanceVisionSession() {
             <Button
               variant="primary"
               size="md"
-              onClick={startSession}
+              onClick={handleStart}
               className="w-full sm:w-auto shadow-md shadow-teal-500/20 font-bold gap-2"
             >
               <span>Begin Snellen Screening</span>
@@ -224,13 +230,15 @@ export function DistanceVisionSession() {
             <DistanceVisionStimulus
               activeRowNumber={currentRowNumber}
               calibration={calibration}
+              chartRows={chart.rows}
+              chartName={chart.name}
             />
 
             {/* Row Interaction & Keyboard Input Area */}
             <div className="space-y-4 pt-3 max-w-xl mx-auto w-full">
               <div className="text-center">
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-mono font-medium">
-                  Row {currentRowNumber} of {snellenChartRows.length} &bull; {currentRowData.snellenFraction} Line &bull; {maxLetters} {maxLetters === 1 ? "Letter" : "Letters"}
+                  Row {currentRowNumber} of {chart.rows.length} &bull; {currentRowData.snellenFraction} Line &bull; {maxLetters} {maxLetters === 1 ? "Letter" : "Letters"}
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
                   What letters are displayed in Row {currentRowNumber}?
@@ -349,8 +357,76 @@ export function DistanceVisionSession() {
 
       {/* State 3: Completion Results View */}
       {(status === "completed" || status === "cancelled") && (
-        <DistanceVisionCompletion summary={summary} onReset={resetSession} />
+        <DistanceVisionCompletion summary={summary} onReset={onRestart} />
       )}
     </div>
+  );
+}
+
+// PRNG generator that avoids hydration mismatches
+function createPrng(seed: number) {
+  let state = ((seed + 1) * 1664525 + 1013904223) >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+export function DistanceVisionSession() {
+  const [calibration, setCalibration] = React.useState<DisplayCalibration>(DEFAULT_CALIBRATION);
+  const [sessionSeed, setSessionSeed] = React.useState(0);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CALIBRATION_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        requestAnimationFrame(() => {
+          setCalibration(parsed);
+        });
+      }
+    } catch {
+      // LocalStorage blocked or invalid
+    }
+  }, []);
+
+  const handleCalibrationChange = React.useCallback((cal: DisplayCalibration) => {
+    setCalibration(cal);
+    try {
+      localStorage.setItem(CALIBRATION_STORAGE_KEY, JSON.stringify(cal));
+    } catch {
+      // LocalStorage blocked
+    }
+  }, []);
+
+  // Select a randomized chart example from the 50+ question bank
+  const activeChart = React.useMemo(() => {
+    const prng = createPrng(sessionSeed);
+    return selectRandomDistanceChart(distanceVisionChartBank, prng);
+  }, [sessionSeed]);
+
+  const activeItems = React.useMemo(() => {
+    return createDistanceTestItems(activeChart.rows, activeChart.id);
+  }, [activeChart]);
+
+  // When user clicks Start or Restart, randomize seed on client
+  const handleStartSession = React.useCallback(() => {
+    setSessionSeed((prev) => (prev === 0 ? Math.floor(Math.random() * 100000) + 1 : prev));
+  }, []);
+
+  const handleRestart = React.useCallback(() => {
+    setSessionSeed((prev) => prev + 1 + Math.floor(Math.random() * 1000));
+  }, []);
+
+  return (
+    <DistanceVisionActiveSession
+      key={sessionSeed}
+      chart={activeChart}
+      items={activeItems}
+      calibration={calibration}
+      onCalibrationChange={handleCalibrationChange}
+      onRestart={handleRestart}
+      onStartSession={handleStartSession}
+    />
   );
 }

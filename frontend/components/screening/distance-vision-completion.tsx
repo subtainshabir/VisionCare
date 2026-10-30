@@ -65,8 +65,8 @@ export function DistanceVisionCompletion({
                 <EyeIcon size={14} className="text-teal-600 dark:text-teal-400" />
                 <span>Snellen Row-by-Row Breakdown</span>
               </h3>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                7 Calibrated Rows (1 to 28 Optotypes)
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                {summary.chartName || "7 Calibrated Rows (1 to 28 Optotypes)"}
               </span>
             </div>
 
