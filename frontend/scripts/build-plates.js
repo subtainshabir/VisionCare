@@ -124,15 +124,18 @@ const plates = [
   { id: "cv-plate-108", image: "/assets/color-vision/plate-108.svg", correctAnswer: "Arrow", options: ["Arrow", "Triangle", "Cross", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control directional arrow." },
 ];
 
-console.log(`Generating ${plates.length} SVG plate assets in ${outputDir}...`);
+console.log(`Generating ${plates.length} high-clarity SVG plate assets in ${outputDir}...`);
 
 let count = 0;
-for (const plate of plates) {
+for (let i = 0; i < plates.length; i++) {
+  const plate = plates[i];
   const filename = path.basename(plate.image);
   const filePath = path.join(outputDir, filename);
-  const svgContent = generatePlateSvg(plate);
+  const svgContent = generatePlateSvg(plate, i);
   fs.writeFileSync(filePath, svgContent, "utf8");
   count++;
 }
 
-console.log(`Successfully generated ${count} SVG plates in ${outputDir}!`);
+console.log(`Successfully generated ${count} high-clarity SVG plates in ${outputDir}!`);
+
+module.exports = plates;
