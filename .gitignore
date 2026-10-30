@@ -44,5 +44,25 @@ yarn-error.log*
 # OS & Editor Files
 .DS_Store
 Thumbs.db
+ehthumbs.db
 .vscode/
 .idea/
+*.swp
+*~
+*.bak
+
+# Android & Native Build Artifacts & Signing Keys
+*.apk
+*.aab
+*.dm
+*.keystore
+*.jks
+*.key
+*.p12
+.gradle/
+local.properties
+
+# Database Backups & Dumps
+*.sqlite
+*.sqlite3
+*.db
