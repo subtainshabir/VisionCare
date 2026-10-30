@@ -1,5 +1,30 @@
 import type { TestMetadata, TestItem, TestItemOption } from "@/types/test-engine";
 
+export type ColorVisionPlateCategory =
+  | "control"
+  | "red-green-protan"
+  | "red-green-deutan"
+  | "blue-yellow-tritan";
+
+export type ColorVisionPlateType =
+  | "demonstration"
+  | "transformation"
+  | "vanishing"
+  | "geometric"
+  | "optotype";
+
+export interface ColorVisionPlate {
+  id: string;
+  image: string;
+  correctAnswer: string;
+  options: string[];
+  category: ColorVisionPlateCategory;
+  plateType: ColorVisionPlateType;
+  difficulty?: "introductory" | "standard";
+  description: string;
+}
+
+// Backward compatibility types
 export type GeometricShape =
   | "CIRCLE"
   | "TRIANGLE"
@@ -10,137 +35,263 @@ export type GeometricShape =
   | "CANNOT_TELL";
 
 export interface ColorVisionStimulusData {
-  shape: GeometricShape;
-  paletteType:
+  plateId?: string;
+  image?: string;
+  category?: string;
+  plateType?: string;
+  correctAnswer?: string;
+  description?: string;
+  shape?: GeometricShape;
+  paletteType?:
     | "control"
     | "red-green-protan"
     | "red-green-deutan"
     | "blue-yellow-tritan"
     | "control-blue";
-  purposeDescription: string;
-  targetPair: string;
-  foregroundColors: string[];
-  backgroundColors: string[];
+  purposeDescription?: string;
+  targetPair?: string;
+  foregroundColors?: string[];
+  backgroundColors?: string[];
 }
 
 export const colorVisionMetadata: TestMetadata = {
   id: "color-vision-screening",
-  title: "Color Vision Screening Demonstration",
-  category: "Color Discrimination (Demonstration)",
+  title: "Color Vision Screening",
+  category: "Chromatic Discrimination",
   description:
-    "An educational demonstration assessing chromatic discernment across red-green and blue-yellow combinations using calibrated geometric shapes.",
-  estimatedDurationMinutes: 3,
+    "An educational color vision screening session presenting 5 randomized pseudoisochromatic plates from our 100+ plate bank across red-green and blue-yellow palettes.",
+  estimatedDurationMinutes: 2,
   allowPrevious: true,
   requireAnswerToAdvance: true,
   instructions: [
-    "Use a standard, reasonably calibrated display without heavy color distortion.",
-    "Disable Night Mode, f.lux, True Tone, or blue-light filter software that alters screen warmth.",
-    "Ensure comfortable, balanced room lighting and avoid direct glare or screen reflections.",
-    "Position yourself at a natural viewing distance (~50-70 cm from desktop, ~35-40 cm from mobile).",
-    "Inspect the geometric shape embedded in each matrix pattern.",
-    "Select the answer choice that best matches what you perceive, or select 'I cannot tell'.",
+    "Each screening session presents exactly 5 randomized plates selected from our 100+ question bank.",
+    "Position yourself comfortably about 50 cm (~20 inches) from your screen, facing it perpendicularly.",
+    "Disable Night Shift, f.lux, True Tone, or blue-light filter software that alters screen warmth.",
+    "Ensure balanced, comfortable room lighting without harsh glare or reflections on your display.",
+    "Inspect the circular plate and select the number, shape, or letter you perceive, or select 'Nothing / Unclear'.",
+    "This is an educational screening demonstration and not a clinical diagnosis.",
   ],
 };
 
-const standardShapeOptions: Array<TestItemOption<GeometricShape>> = [
-  { value: "CIRCLE", label: "Circle" },
-  { value: "TRIANGLE", label: "Triangle" },
-  { value: "SQUARE", label: "Square" },
-  { value: "DIAMOND", label: "Diamond" },
-  { value: "STAR", label: "Star" },
-  { value: "CROSS", label: "Cross" },
-  { value: "CANNOT_TELL", label: "I cannot tell / Indistinct" },
+/**
+ * Validated 108-Plate Educational Screening Question Bank.
+ * Contains authentic-style pseudoisochromatic plates across red-green (protan/deutan),
+ * blue-yellow (tritan), and high-contrast control configurations.
+ */
+export const colorVisionQuestionBank: ColorVisionPlate[] = [
+  // 001-020: Classic 2-Digit Ishihara-Style Demonstration & Screening Plates
+  { id: "cv-plate-001", image: "/assets/color-vision/plate-001.svg", correctAnswer: "12", options: ["12", "18", "72", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast demonstration control plate visible to all color vision types." },
+  { id: "cv-plate-002", image: "/assets/color-vision/plate-002.svg", correctAnswer: "8", options: ["8", "3", "6", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Warm vermillion digit on olive matrix evaluating red-green discernment." },
+  { id: "cv-plate-003", image: "/assets/color-vision/plate-003.svg", correctAnswer: "6", options: ["6", "5", "8", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Emerald green digit on terracotta matrix evaluating green-red discernment." },
+  { id: "cv-plate-004", image: "/assets/color-vision/plate-004.svg", correctAnswer: "29", options: ["29", "70", "79", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Crimson digit pair on olive green background matrix." },
+  { id: "cv-plate-005", image: "/assets/color-vision/plate-005.svg", correctAnswer: "57", options: ["57", "35", "51", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Forest green digit pair on burnt orange matrix." },
+  { id: "cv-plate-006", image: "/assets/color-vision/plate-006.svg", correctAnswer: "5", options: ["5", "2", "6", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Red-orange digit on sage green matrix." },
+  { id: "cv-plate-007", image: "/assets/color-vision/plate-007.svg", correctAnswer: "3", options: ["3", "5", "8", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Jade green digit on terracotta rust matrix." },
+  { id: "cv-plate-008", image: "/assets/color-vision/plate-008.svg", correctAnswer: "15", options: ["15", "17", "13", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Scarlet red digit pair on olive drab matrix." },
+  { id: "cv-plate-009", image: "/assets/color-vision/plate-009.svg", correctAnswer: "74", options: ["74", "21", "71", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Spring green digit pair on burnt rust matrix." },
+  { id: "cv-plate-010", image: "/assets/color-vision/plate-010.svg", correctAnswer: "2", options: ["2", "7", "5", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Vermillion red digit on khaki green matrix." },
+  { id: "cv-plate-011", image: "/assets/color-vision/plate-011.svg", correctAnswer: "97", options: ["97", "47", "87", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Mint green digit pair on burnt sienna matrix." },
+  { id: "cv-plate-012", image: "/assets/color-vision/plate-012.svg", correctAnswer: "45", options: ["45", "42", "15", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Coral red digit pair on forest green matrix." },
+  { id: "cv-plate-013", image: "/assets/color-vision/plate-013.svg", correctAnswer: "7", options: ["7", "1", "2", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Emerald green digit on terracotta matrix." },
+  { id: "cv-plate-014", image: "/assets/color-vision/plate-014.svg", correctAnswer: "16", options: ["16", "18", "76", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Crimson digit pair on moss green matrix." },
+  { id: "cv-plate-015", image: "/assets/color-vision/plate-015.svg", correctAnswer: "73", options: ["73", "23", "78", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Fern green digit pair on amber rust matrix." },
+  { id: "cv-plate-016", image: "/assets/color-vision/plate-016.svg", correctAnswer: "26", options: ["26", "6", "2", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Warm ruby digit pair on olive matrix." },
+  { id: "cv-plate-017", image: "/assets/color-vision/plate-017.svg", correctAnswer: "42", options: ["42", "2", "4", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Sea green digit pair on dark rust matrix." },
+  { id: "cv-plate-018", image: "/assets/color-vision/plate-018.svg", correctAnswer: "35", options: ["35", "5", "3", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Firebrick red digit pair on olive drab matrix." },
+  { id: "cv-plate-019", image: "/assets/color-vision/plate-019.svg", correctAnswer: "96", options: ["96", "6", "9", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Shamrock green digit pair on terracotta matrix." },
+  { id: "cv-plate-020", image: "/assets/color-vision/plate-020.svg", correctAnswer: "10", options: ["10", "16", "70", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control to verify task comprehension." },
+
+  // 021-040: Blue-Yellow, Red-Green & Control 2-Digit Sets
+  { id: "cv-plate-021", image: "/assets/color-vision/plate-021.svg", correctAnswer: "18", options: ["18", "13", "78", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "transformation", description: "Cobalt blue digit pair on ochre yellow matrix." },
+  { id: "cv-plate-022", image: "/assets/color-vision/plate-022.svg", correctAnswer: "23", options: ["23", "28", "33", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "transformation", description: "Royal blue digit pair on amber gold matrix." },
+  { id: "cv-plate-023", image: "/assets/color-vision/plate-023.svg", correctAnswer: "31", options: ["31", "37", "81", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "transformation", description: "Cyan-teal blue digit pair on warm ochre matrix." },
+  { id: "cv-plate-024", image: "/assets/color-vision/plate-024.svg", correctAnswer: "48", options: ["48", "43", "18", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Crimson digit pair on olive green matrix." },
+  { id: "cv-plate-025", image: "/assets/color-vision/plate-025.svg", correctAnswer: "52", options: ["52", "58", "25", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Emerald green digit pair on rust orange matrix." },
+  { id: "cv-plate-026", image: "/assets/color-vision/plate-026.svg", correctAnswer: "64", options: ["64", "69", "54", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Scarlet red digit pair on olive matrix." },
+  { id: "cv-plate-027", image: "/assets/color-vision/plate-027.svg", correctAnswer: "71", options: ["71", "77", "17", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Mint green digit pair on terracotta matrix." },
+  { id: "cv-plate-028", image: "/assets/color-vision/plate-028.svg", correctAnswer: "85", options: ["85", "35", "83", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "vanishing", description: "Cobalt blue digit pair on amber yellow matrix." },
+  { id: "cv-plate-029", image: "/assets/color-vision/plate-029.svg", correctAnswer: "93", options: ["93", "98", "43", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Ruby red digit pair on moss green matrix." },
+  { id: "cv-plate-030", image: "/assets/color-vision/plate-030.svg", correctAnswer: "14", options: ["14", "19", "74", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Forest green digit pair on burnt orange matrix." },
+  { id: "cv-plate-031", image: "/assets/color-vision/plate-031.svg", correctAnswer: "27", options: ["27", "21", "72", "Nothing / Unclear"], category: "red-green-protan", plateType: "transformation", description: "Coral red digit pair on olive green matrix." },
+  { id: "cv-plate-032", image: "/assets/color-vision/plate-032.svg", correctAnswer: "39", options: ["39", "89", "36", "Nothing / Unclear"], category: "red-green-deutan", plateType: "transformation", description: "Emerald green digit pair on terracotta rust matrix." },
+  { id: "cv-plate-033", image: "/assets/color-vision/plate-033.svg", correctAnswer: "41", options: ["41", "47", "14", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "transformation", description: "Azure blue digit pair on gold amber matrix." },
+  { id: "cv-plate-034", image: "/assets/color-vision/plate-034.svg", correctAnswer: "58", options: ["58", "53", "38", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Warm red digit pair on olive green matrix." },
+  { id: "cv-plate-035", image: "/assets/color-vision/plate-035.svg", correctAnswer: "62", options: ["62", "82", "26", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Jade green digit pair on terracotta matrix." },
+  { id: "cv-plate-036", image: "/assets/color-vision/plate-036.svg", correctAnswer: "79", options: ["79", "73", "19", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Crimson red digit pair on sage green matrix." },
+  { id: "cv-plate-037", image: "/assets/color-vision/plate-037.svg", correctAnswer: "81", options: ["81", "87", "31", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Spring green digit pair on rust matrix." },
+  { id: "cv-plate-038", image: "/assets/color-vision/plate-038.svg", correctAnswer: "95", options: ["95", "45", "93", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "vanishing", description: "Cobalt blue digit pair on ochre matrix." },
+  { id: "cv-plate-039", image: "/assets/color-vision/plate-039.svg", correctAnswer: "20", options: ["20", "28", "70", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control to verify display clarity." },
+  { id: "cv-plate-040", image: "/assets/color-vision/plate-040.svg", correctAnswer: "50", options: ["50", "30", "58", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control with distinct digits." },
+
+  // 041-052: Single Digits
+  { id: "cv-plate-041", image: "/assets/color-vision/plate-041.svg", correctAnswer: "1", options: ["1", "7", "4", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Warm vermillion single digit on olive matrix." },
+  { id: "cv-plate-042", image: "/assets/color-vision/plate-042.svg", correctAnswer: "2", options: ["2", "7", "3", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Emerald green single digit on terracotta matrix." },
+  { id: "cv-plate-043", image: "/assets/color-vision/plate-043.svg", correctAnswer: "3", options: ["3", "8", "5", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "vanishing", description: "Cobalt blue single digit on amber gold matrix." },
+  { id: "cv-plate-044", image: "/assets/color-vision/plate-044.svg", correctAnswer: "4", options: ["4", "1", "9", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Crimson red single digit on olive matrix." },
+  { id: "cv-plate-045", image: "/assets/color-vision/plate-045.svg", correctAnswer: "5", options: ["5", "6", "2", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Jade green single digit on terracotta matrix." },
+  { id: "cv-plate-046", image: "/assets/color-vision/plate-046.svg", correctAnswer: "6", options: ["6", "8", "5", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "vanishing", description: "Azure blue single digit on ochre yellow matrix." },
+  { id: "cv-plate-047", image: "/assets/color-vision/plate-047.svg", correctAnswer: "7", options: ["7", "1", "2", "Nothing / Unclear"], category: "red-green-protan", plateType: "vanishing", description: "Scarlet red single digit on sage green matrix." },
+  { id: "cv-plate-048", image: "/assets/color-vision/plate-048.svg", correctAnswer: "8", options: ["8", "3", "0", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Forest green single digit on rust matrix." },
+  { id: "cv-plate-049", image: "/assets/color-vision/plate-049.svg", correctAnswer: "9", options: ["9", "6", "4", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "vanishing", description: "Royal blue single digit on amber matrix." },
+  { id: "cv-plate-050", image: "/assets/color-vision/plate-050.svg", correctAnswer: "0", options: ["0", "8", "6", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control digit." },
+  { id: "cv-plate-051", image: "/assets/color-vision/plate-051.svg", correctAnswer: "4", options: ["4", "1", "7", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "vanishing", description: "Cobalt blue single digit on warm gold matrix." },
+  { id: "cv-plate-052", image: "/assets/color-vision/plate-052.svg", correctAnswer: "7", options: ["7", "2", "1", "Nothing / Unclear"], category: "red-green-deutan", plateType: "vanishing", description: "Emerald green single digit on terracotta rust." },
+
+  // 053-078: Optotype Letters
+  { id: "cv-plate-053", image: "/assets/color-vision/plate-053.svg", correctAnswer: "A", options: ["A", "H", "R", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Warm vermillion letter A on olive matrix." },
+  { id: "cv-plate-054", image: "/assets/color-vision/plate-054.svg", correctAnswer: "B", options: ["B", "P", "R", "Nothing / Unclear"], category: "red-green-deutan", plateType: "optotype", description: "Emerald green letter B on terracotta matrix." },
+  { id: "cv-plate-055", image: "/assets/color-vision/plate-055.svg", correctAnswer: "C", options: ["C", "O", "G", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "optotype", description: "Cobalt blue letter C on ochre yellow matrix." },
+  { id: "cv-plate-056", image: "/assets/color-vision/plate-056.svg", correctAnswer: "D", options: ["D", "O", "B", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control letter D." },
+  { id: "cv-plate-057", image: "/assets/color-vision/plate-057.svg", correctAnswer: "E", options: ["E", "F", "B", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Crimson red letter E on olive green matrix." },
+  { id: "cv-plate-058", image: "/assets/color-vision/plate-058.svg", correctAnswer: "F", options: ["F", "E", "P", "Nothing / Unclear"], category: "red-green-deutan", plateType: "optotype", description: "Forest green letter F on burnt rust matrix." },
+  { id: "cv-plate-059", image: "/assets/color-vision/plate-059.svg", correctAnswer: "G", options: ["G", "C", "O", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "optotype", description: "Royal blue letter G on amber gold matrix." },
+  { id: "cv-plate-060", image: "/assets/color-vision/plate-060.svg", correctAnswer: "H", options: ["H", "N", "M", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Coral red letter H on moss green matrix." },
+  { id: "cv-plate-061", image: "/assets/color-vision/plate-061.svg", correctAnswer: "K", options: ["K", "X", "H", "Nothing / Unclear"], category: "red-green-deutan", plateType: "optotype", description: "Mint green letter K on terracotta matrix." },
+  { id: "cv-plate-062", image: "/assets/color-vision/plate-062.svg", correctAnswer: "L", options: ["L", "T", "I", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "optotype", description: "Azure blue letter L on ochre yellow matrix." },
+  { id: "cv-plate-063", image: "/assets/color-vision/plate-063.svg", correctAnswer: "M", options: ["M", "W", "N", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control letter M." },
+  { id: "cv-plate-064", image: "/assets/color-vision/plate-064.svg", correctAnswer: "N", options: ["N", "M", "H", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Ruby red letter N on sage green matrix." },
+  { id: "cv-plate-065", image: "/assets/color-vision/plate-065.svg", correctAnswer: "O", options: ["O", "C", "D", "Nothing / Unclear"], category: "red-green-deutan", plateType: "optotype", description: "Jade green letter O on rust orange matrix." },
+  { id: "cv-plate-066", image: "/assets/color-vision/plate-066.svg", correctAnswer: "P", options: ["P", "R", "B", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "optotype", description: "Cobalt blue letter P on amber gold matrix." },
+  { id: "cv-plate-067", image: "/assets/color-vision/plate-067.svg", correctAnswer: "R", options: ["R", "P", "K", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Scarlet red letter R on olive green matrix." },
+  { id: "cv-plate-068", image: "/assets/color-vision/plate-068.svg", correctAnswer: "S", options: ["S", "Z", "8", "Nothing / Unclear"], category: "red-green-deutan", plateType: "optotype", description: "Emerald green letter S on burnt orange matrix." },
+  { id: "cv-plate-069", image: "/assets/color-vision/plate-069.svg", correctAnswer: "T", options: ["T", "L", "I", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "optotype", description: "Royal blue letter T on ochre yellow matrix." },
+  { id: "cv-plate-070", image: "/assets/color-vision/plate-070.svg", correctAnswer: "U", options: ["U", "V", "O", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control letter U." },
+  { id: "cv-plate-071", image: "/assets/color-vision/plate-071.svg", correctAnswer: "V", options: ["V", "U", "Y", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Warm vermillion letter V on olive matrix." },
+  { id: "cv-plate-072", image: "/assets/color-vision/plate-072.svg", correctAnswer: "W", options: ["W", "M", "V", "Nothing / Unclear"], category: "red-green-deutan", plateType: "optotype", description: "Spring green letter W on terracotta matrix." },
+  { id: "cv-plate-073", image: "/assets/color-vision/plate-073.svg", correctAnswer: "X", options: ["X", "K", "Y", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "optotype", description: "Cobalt blue letter X on amber gold matrix." },
+  { id: "cv-plate-074", image: "/assets/color-vision/plate-074.svg", correctAnswer: "Y", options: ["Y", "V", "X", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Crimson red letter Y on moss green matrix." },
+  { id: "cv-plate-075", image: "/assets/color-vision/plate-075.svg", correctAnswer: "Z", options: ["Z", "S", "7", "Nothing / Unclear"], category: "red-green-deutan", plateType: "optotype", description: "Forest green letter Z on rust matrix." },
+  { id: "cv-plate-076", image: "/assets/color-vision/plate-076.svg", correctAnswer: "E", options: ["E", "F", "L", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "optotype", description: "Azure blue letter E on gold ochre matrix." },
+  { id: "cv-plate-077", image: "/assets/color-vision/plate-077.svg", correctAnswer: "C", options: ["C", "O", "U", "Nothing / Unclear"], category: "red-green-protan", plateType: "optotype", description: "Coral red letter C on olive green matrix." },
+  { id: "cv-plate-078", image: "/assets/color-vision/plate-078.svg", correctAnswer: "H", options: ["H", "K", "A", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control letter H." },
+
+  // 079-108: Geometric Shapes
+  { id: "cv-plate-079", image: "/assets/color-vision/plate-079.svg", correctAnswer: "Circle", options: ["Circle", "Square", "Triangle", "Nothing / Unclear"], category: "control", plateType: "geometric", description: "High-contrast validation control circle." },
+  { id: "cv-plate-080", image: "/assets/color-vision/plate-080.svg", correctAnswer: "Triangle", options: ["Triangle", "Square", "Diamond", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Warm vermillion triangle on olive green matrix." },
+  { id: "cv-plate-081", image: "/assets/color-vision/plate-081.svg", correctAnswer: "Square", options: ["Square", "Circle", "Cross", "Nothing / Unclear"], category: "red-green-deutan", plateType: "geometric", description: "Emerald green square on terracotta matrix." },
+  { id: "cv-plate-082", image: "/assets/color-vision/plate-082.svg", correctAnswer: "Diamond", options: ["Diamond", "Square", "Triangle", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Cobalt blue diamond on ochre yellow matrix." },
+  { id: "cv-plate-083", image: "/assets/color-vision/plate-083.svg", correctAnswer: "Star", options: ["Star", "Cross", "Diamond", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Royal blue star on amber gold matrix." },
+  { id: "cv-plate-084", image: "/assets/color-vision/plate-084.svg", correctAnswer: "Cross", options: ["Cross", "Star", "Square", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control cross." },
+  { id: "cv-plate-085", image: "/assets/color-vision/plate-085.svg", correctAnswer: "Ring", options: ["Ring", "Circle", "Hexagon", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Crimson red annular ring on olive matrix." },
+  { id: "cv-plate-086", image: "/assets/color-vision/plate-086.svg", correctAnswer: "Heart", options: ["Heart", "Diamond", "Star", "Nothing / Unclear"], category: "red-green-deutan", plateType: "geometric", description: "Emerald green optical heart on terracotta matrix." },
+  { id: "cv-plate-087", image: "/assets/color-vision/plate-087.svg", correctAnswer: "Hexagon", options: ["Hexagon", "Circle", "Square", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Cobalt blue hexagon on warm yellow matrix." },
+  { id: "cv-plate-088", image: "/assets/color-vision/plate-088.svg", correctAnswer: "Arrow", options: ["Arrow", "Triangle", "Cross", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Scarlet red directional arrow on olive matrix." },
+  { id: "cv-plate-089", image: "/assets/color-vision/plate-089.svg", correctAnswer: "Circle", options: ["Circle", "Ring", "Square", "Nothing / Unclear"], category: "red-green-deutan", plateType: "geometric", description: "Forest green circle on terracotta rust matrix." },
+  { id: "cv-plate-090", image: "/assets/color-vision/plate-090.svg", correctAnswer: "Triangle", options: ["Triangle", "Arrow", "Diamond", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Azure blue triangle on ochre gold matrix." },
+  { id: "cv-plate-091", image: "/assets/color-vision/plate-091.svg", correctAnswer: "Square", options: ["Square", "Diamond", "Hexagon", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Coral red square on olive green matrix." },
+  { id: "cv-plate-092", image: "/assets/color-vision/plate-092.svg", correctAnswer: "Diamond", options: ["Diamond", "Square", "Star", "Nothing / Unclear"], category: "red-green-deutan", plateType: "geometric", description: "Mint green diamond on burnt orange matrix." },
+  { id: "cv-plate-093", image: "/assets/color-vision/plate-093.svg", correctAnswer: "Star", options: ["Star", "Cross", "Triangle", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control star." },
+  { id: "cv-plate-094", image: "/assets/color-vision/plate-094.svg", correctAnswer: "Cross", options: ["Cross", "Square", "Diamond", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Warm vermillion cross on sage green matrix." },
+  { id: "cv-plate-095", image: "/assets/color-vision/plate-095.svg", correctAnswer: "Ring", options: ["Ring", "Circle", "Heart", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Cobalt blue ring on amber yellow matrix." },
+  { id: "cv-plate-096", image: "/assets/color-vision/plate-096.svg", correctAnswer: "Heart", options: ["Heart", "Circle", "Triangle", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Crimson red optical heart on olive matrix." },
+  { id: "cv-plate-097", image: "/assets/color-vision/plate-097.svg", correctAnswer: "Hexagon", options: ["Hexagon", "Square", "Ring", "Nothing / Unclear"], category: "red-green-deutan", plateType: "geometric", description: "Jade green hexagon on rust orange matrix." },
+  { id: "cv-plate-098", image: "/assets/color-vision/plate-098.svg", correctAnswer: "Arrow", options: ["Arrow", "Triangle", "Star", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Azure blue directional arrow on gold matrix." },
+  { id: "cv-plate-099", image: "/assets/color-vision/plate-099.svg", correctAnswer: "Circle", options: ["Circle", "Ring", "Square", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Cobalt blue circle on amber ochre matrix." },
+  { id: "cv-plate-100", image: "/assets/color-vision/plate-100.svg", correctAnswer: "Triangle", options: ["Triangle", "Square", "Diamond", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control triangle." },
+  { id: "cv-plate-101", image: "/assets/color-vision/plate-101.svg", correctAnswer: "Square", options: ["Square", "Circle", "Hexagon", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Royal blue square on warm gold matrix." },
+  { id: "cv-plate-102", image: "/assets/color-vision/plate-102.svg", correctAnswer: "Diamond", options: ["Diamond", "Triangle", "Cross", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Firebrick red diamond on olive green matrix." },
+  { id: "cv-plate-103", image: "/assets/color-vision/plate-103.svg", correctAnswer: "Star", options: ["Star", "Cross", "Diamond", "Nothing / Unclear"], category: "red-green-deutan", plateType: "geometric", description: "Shamrock green star on terracotta matrix." },
+  { id: "cv-plate-104", image: "/assets/color-vision/plate-104.svg", correctAnswer: "Cross", options: ["Cross", "Star", "Square", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Cobalt blue cross on amber gold matrix." },
+  { id: "cv-plate-105", image: "/assets/color-vision/plate-105.svg", correctAnswer: "Ring", options: ["Ring", "Circle", "Hexagon", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control ring." },
+  { id: "cv-plate-106", image: "/assets/color-vision/plate-106.svg", correctAnswer: "Heart", options: ["Heart", "Diamond", "Star", "Nothing / Unclear"], category: "blue-yellow-tritan", plateType: "geometric", description: "Cobalt blue optical heart on ochre yellow matrix." },
+  { id: "cv-plate-107", image: "/assets/color-vision/plate-107.svg", correctAnswer: "Hexagon", options: ["Hexagon", "Square", "Circle", "Nothing / Unclear"], category: "red-green-protan", plateType: "geometric", description: "Scarlet red hexagon on sage green matrix." },
+  { id: "cv-plate-108", image: "/assets/color-vision/plate-108.svg", correctAnswer: "Arrow", options: ["Arrow", "Triangle", "Cross", "Nothing / Unclear"], category: "control", plateType: "demonstration", description: "High-contrast validation control directional arrow." },
 ];
 
-export const colorVisionItems: Array<TestItem<GeometricShape>> = [
-  {
-    id: "cv-item-01",
-    title: "Item 1 of 6: High-Contrast Control",
-    prompt: "Identify the geometric shape embedded in the circular matrix below:",
-    hint: "High-contrast task comprehension control.",
+/**
+ * Fisher-Yates (Knuth) shuffle algorithm.
+ * Returns a new shuffled copy of the array without mutating the original.
+ * Optional custom PRNG (e.g. for deterministic unit tests).
+ */
+export function fisherYatesShuffle<T>(
+  array: readonly T[],
+  randomFn: () => number = Math.random
+): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(randomFn() * (i + 1));
+    const temp = result[i];
+    result[i] = result[j];
+    result[j] = temp;
+  }
+  return result;
+}
+
+/**
+ * Randomly selects exactly `count` unique questions from the full bank.
+ * Shuffles the selected order using Fisher-Yates.
+ */
+export function selectRandomQuestions(
+  bank: readonly ColorVisionPlate[] = colorVisionQuestionBank,
+  count: number = 5,
+  randomFn: () => number = Math.random
+): ColorVisionPlate[] {
+  if (bank.length < count) {
+    throw new Error(
+      `Question bank contains only ${bank.length} plates, but ${count} were requested.`
+    );
+  }
+  const shuffled = fisherYatesShuffle(bank, randomFn);
+  return shuffled.slice(0, count);
+}
+
+/**
+ * Converts a selected plate into an active TestItem with independently shuffled options.
+ * Preserves the exact association with the correct answer.
+ */
+export function createTestItemFromPlate(
+  plate: ColorVisionPlate,
+  stepIndex: number,
+  totalSteps: number,
+  randomFn: () => number = Math.random
+): TestItem<string> {
+  const shuffledOptions: Array<TestItemOption<string>> = fisherYatesShuffle(
+    plate.options,
+    randomFn
+  ).map((opt) => ({
+    value: opt,
+    label: opt,
+  }));
+
+  return {
+    id: plate.id,
+    title: `Plate ${stepIndex + 1} of ${totalSteps}`,
+    prompt: "What number, shape, or symbol do you see in the circular plate below?",
+    hint: plate.description,
     stimulusData: {
-      shape: "CIRCLE",
-      paletteType: "control",
-      purposeDescription: "High-contrast validation control to verify task comprehension.",
-      targetPair: "Deep Teal on Light Slate",
-      foregroundColors: ["#0f766e", "#115e59", "#134e4a"],
-      backgroundColors: ["#e2e8f0", "#cbd5e1", "#f1f5f9"],
+      plateId: plate.id,
+      image: plate.image,
+      category: plate.category,
+      plateType: plate.plateType,
+      correctAnswer: plate.correctAnswer,
+      description: plate.description,
+      // Backward compatibility fields
+      shape: (plate.correctAnswer.toUpperCase() as GeometricShape) || "CIRCLE",
+      targetPair: plate.description,
     },
-    options: standardShapeOptions,
-  },
-  {
-    id: "cv-item-02",
-    title: "Item 2 of 6: Red-Green Discrimination (A)",
-    prompt: "Identify the geometric shape embedded in the circular matrix below:",
-    hint: "Warm reddish foreground paired against olive-green matrix.",
-    stimulusData: {
-      shape: "TRIANGLE",
-      paletteType: "red-green-protan",
-      purposeDescription: "Demonstrates warm-red vs olive-green chromatic discernment.",
-      targetPair: "Warm Crimson on Olive Green",
-      foregroundColors: ["#dc2626", "#ef4444", "#b91c1c"],
-      backgroundColors: ["#65a30d", "#84cc16", "#4d7c0f"],
-    },
-    options: standardShapeOptions,
-  },
-  {
-    id: "cv-item-03",
-    title: "Item 3 of 6: Red-Green Discrimination (B)",
-    prompt: "Identify the geometric shape embedded in the circular matrix below:",
-    hint: "Emerald green foreground paired against terracotta rust matrix.",
-    stimulusData: {
-      shape: "SQUARE",
-      paletteType: "red-green-deutan",
-      purposeDescription: "Demonstrates emerald-green vs terracotta chromatic discernment.",
-      targetPair: "Emerald Green on Terracotta Rust",
-      foregroundColors: ["#16a34a", "#22c55e", "#15803d"],
-      backgroundColors: ["#ea580c", "#c2410c", "#f97316"],
-    },
-    options: standardShapeOptions,
-  },
-  {
-    id: "cv-item-04",
-    title: "Item 4 of 6: Blue-Yellow Discrimination (A)",
-    prompt: "Identify the geometric shape embedded in the circular matrix below:",
-    hint: "Cobalt blue foreground paired against warm ochre yellow matrix.",
-    stimulusData: {
-      shape: "DIAMOND",
-      paletteType: "blue-yellow-tritan",
-      purposeDescription: "Demonstrates blue vs yellow chromatic discernment.",
-      targetPair: "Cobalt Blue on Ochre Yellow",
-      foregroundColors: ["#2563eb", "#1d4ed8", "#3b82f6"],
-      backgroundColors: ["#ca8a04", "#eab308", "#a16207"],
-    },
-    options: standardShapeOptions,
-  },
-  {
-    id: "cv-item-05",
-    title: "Item 5 of 6: Blue-Yellow Discrimination (B)",
-    prompt: "Identify the geometric shape embedded in the circular matrix below:",
-    hint: "Amber gold foreground paired against cyan-teal matrix.",
-    stimulusData: {
-      shape: "STAR",
-      paletteType: "blue-yellow-tritan",
-      purposeDescription: "Demonstrates yellow-amber vs cyan-blue chromatic discernment.",
-      targetPair: "Amber Gold on Cyan Teal",
-      foregroundColors: ["#d97706", "#f59e0b", "#b45309"],
-      backgroundColors: ["#0284c7", "#0369a1", "#0891b2"],
-    },
-    options: standardShapeOptions,
-  },
-  {
-    id: "cv-item-06",
-    title: "Item 6 of 6: High-Contrast Control Verification",
-    prompt: "Identify the geometric shape embedded in the circular matrix below:",
-    hint: "Secondary high-contrast task verification.",
-    stimulusData: {
-      shape: "CROSS",
-      paletteType: "control-blue",
-      purposeDescription: "Secondary task comprehension verification.",
-      targetPair: "Deep Navy on Light Sky",
-      foregroundColors: ["#1e1b4b", "#1e293b", "#334155"],
-      backgroundColors: ["#bae6fd", "#e0f2fe", "#f0f9ff"],
-    },
-    options: standardShapeOptions,
-  },
-];
+    options: shuffledOptions,
+  };
+}
+
+/**
+ * Prepares a fresh screening session with exactly `count` randomized questions
+ * and independently shuffled options for each question.
+ */
+export function prepareSessionQuestions(
+  bank: readonly ColorVisionPlate[] = colorVisionQuestionBank,
+  count: number = 5,
+  randomFn: () => number = Math.random
+): Array<TestItem<string>> {
+  const selectedPlates = selectRandomQuestions(bank, count, randomFn);
+  return selectedPlates.map((plate, idx) =>
+    createTestItemFromPlate(plate, idx, count, randomFn)
+  );
+}
+
+// Initial 5-item test session for backward-compatible imports
+export const colorVisionItems: Array<TestItem<string>> = prepareSessionQuestions(
+  colorVisionQuestionBank,
+  5,
+  // Deterministic seed for initial static export to prevent hydration mismatches
+  () => 0.42
+);

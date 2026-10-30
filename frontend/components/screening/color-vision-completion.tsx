@@ -14,7 +14,7 @@ export function ColorVisionCompletion({
   return (
     <ScreeningResultsSummary
       testId="color-vision"
-      testTitle="Color Vision Demonstration"
+      testTitle="Color Vision Screening"
       status={summary.status}
       totalItems={summary.totalItems}
       answeredCount={summary.answeredCount}
@@ -28,7 +28,7 @@ export function ColorVisionCompletion({
       {/* Demonstration Plate Breakdown */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2.5">
-          Demonstration Plate Breakdown
+          Screening Plate Breakdown ({summary.matchedCount} of {summary.totalItems} Matched)
         </h3>
         <div className="space-y-2">
           {summary.evaluations.map((item, idx) => (
@@ -38,10 +38,17 @@ export function ColorVisionCompletion({
             >
               <div>
                 <span className="font-bold text-slate-900 dark:text-white">
-                  Item {idx + 1}: {item.itemTitle}
+                  Plate {idx + 1}: {item.itemTitle}
                 </span>
                 <span className="text-slate-600 dark:text-slate-400 block text-[11px] mt-0.5">
-                  Selected: <strong className="text-slate-800 dark:text-slate-200">{item.userResponse ?? "None"}</strong> | Target: <span className="text-teal-600 dark:text-teal-400 font-semibold">{item.expectedShape}</span>
+                  Selected:{" "}
+                  <strong className="text-slate-800 dark:text-slate-200">
+                    {item.userResponse ?? "None"}
+                  </strong>{" "}
+                  | Target:{" "}
+                  <span className="text-teal-600 dark:text-teal-400 font-semibold">
+                    {item.expectedAnswer || item.expectedShape}
+                  </span>
                 </span>
               </div>
 

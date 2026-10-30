@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/page-container";
@@ -6,9 +7,9 @@ import { ColorVisionSession } from "@/components/screening/color-vision-session"
 import { ScreeningNotice } from "@/components/screening/screening-notice";
 
 export const metadata: Metadata = {
-  title: "Color Vision Screening Demonstration - VisionCare",
+  title: "Color Vision Screening - VisionCare",
   description:
-    "An educational demonstration of browser-based color vision screening using geometric shapes and calibrated chromatic patterns.",
+    "An educational browser-based color vision screening session presenting 5 randomized pseudoisochromatic plates from our 100+ plate question bank.",
 };
 
 export default function ColorVisionPage() {
@@ -41,7 +42,7 @@ export default function ColorVisionPage() {
               /
             </li>
             <li aria-current="page" className="text-teal-700 dark:text-cyan-400 font-semibold">
-              Color Vision Demonstration
+              Color Vision Screening
             </li>
           </ol>
         </nav>
@@ -52,21 +53,29 @@ export default function ColorVisionPage() {
             <span className="w-2 h-2 rounded-full bg-teal-500 dark:bg-cyan-400 animate-pulse" aria-hidden="true" />
             <div>
               <strong className="text-slate-900 dark:text-white font-bold block sm:inline">
-                Color Vision Demonstration:{" "}
+                Color Vision Screening:{" "}
               </strong>
               <span className="text-slate-600 dark:text-slate-400">
-                Uses calibrated geometric shapes across red-green and blue-yellow palettes. Not a clinical Ishihara test.
+                Randomized 5-plate educational screening from our 100+ plate bank across red-green and blue-yellow palettes.
               </span>
             </div>
           </div>
           <Badge variant="primary" className="shrink-0 text-[11px]">
-            Educational Demo
+            Educational Screening
           </Badge>
         </div>
 
         {/* Interactive Test Engine Session */}
         <div className="mb-14">
-          <ColorVisionSession />
+          <Suspense
+            fallback={
+              <div className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                Loading screening session...
+              </div>
+            }
+          >
+            <ColorVisionSession />
+          </Suspense>
         </div>
 
         {/* Clinical Responsible-Use Advisory */}
